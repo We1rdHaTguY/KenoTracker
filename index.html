@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0B3D2E">
+<title>Keno Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --felt: #0B3D2E;
+    --felt-dark: #082A20;
+    --felt-light: #145C43;
+    --gold: #D4AF37;
+    --gold-soft: #E8CE7B;
+    --cream: #F4EDE4;
+    --ink: #142019;
+    --ball-white: #FFFFFF;
+    --danger: #B5443B;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: radial-gradient(ellipse at top, var(--felt-light) 0%, var(--felt) 45%, var(--felt-dark) 100%);
+    min-height: 100vh;
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--cream);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: env(safe-area-inset-top) 12px calc(env(safe-area-inset-bottom) + 16px);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    padding: 18px 4px 10px;
+    text-align: center;
+  }
+
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: clamp(24px, 6vw, 32px);
+    margin: 0;
+    letter-spacing: 0.5px;
+    color: var(--gold-soft);
+  }
+
+  .subtitle {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(244, 237, 228, 0.55);
+    margin-top: 4px;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: rgba(0,0,0,0.18);
+    border: 1px solid rgba(212,175,55,0.25);
+    border-radius: 14px;
+    padding: 10px 12px;
+    margin: 12px 0 16px;
+  }
+
+  .color-pick {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .color-pick label {
+    font-size: 12px;
+    color: rgba(244,237,228,0.7);
+    font-weight: 500;
+  }
+
+  input[type="color"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 34px;
+    height: 34px;
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+  input[type="color"]::-webkit-color-swatch { border: none; border-radius: 50%; }
+
+  .btn-group { display: flex; gap: 8px; }
+
+  button {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    border: none;
+    border-radius: 10px;
+    padding: 9px 14px;
+    cursor: pointer;
+    transition: transform 0.08s ease, opacity 0.15s ease;
+  }
+  button:active { transform: scale(0.94); }
+  button:disabled { opacity: 0.35; cursor: default; }
+  button:disabled:active { transform: none; }
+
+  .btn-undo {
+    background: var(--gold);
+    color: var(--felt-dark);
+  }
+  .btn-reset {
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid rgba(181,68,59,0.6);
+  }
+
+  .board {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 8px;
+    padding: 10px;
+    background: rgba(0,0,0,0.15);
+    border: 1px solid rgba(212,175,55,0.2);
+    border-radius: 18px;
+    flex: 1;
+  }
+
+  @media (min-width: 460px) {
+    .board { grid-template-columns: repeat(10, 1fr); gap: 10px; padding: 14px; }
+  }
+
+  .ball {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ball-white);
+    color: var(--ink);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: clamp(12px, 3.4vw, 17px);
+    border: none;
+    box-shadow: inset 0 -3px 6px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.35);
+    user-select: none;
+    padding: 0;
+    transition: background-color 0.12s ease, color 0.12s ease, transform 0.08s ease;
+  }
+
+  .ball:active { transform: scale(0.9); }
+
+  .ball .count-badge {
+    position: absolute;
+    bottom: -3px;
+    right: -3px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 3px;
+    background: var(--gold);
+    color: var(--felt-dark);
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  }
+
+  footer {
+    text-align: center;
+    font-size: 11px;
+    color: rgba(244,237,228,0.4);
+    padding: 14px 4px 4px;
+  }
+
+  footer a { color: var(--gold-soft); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Keno Tracker</h1>
+    <div class="subtitle">Tap a number to log a hit</div>
+  </header>
+
+  <div class="controls">
+    <div class="color-pick">
+      <label for="colorInput">Color</label>
+      <input type="color" id="colorInput" value="#B5443B">
+    </div>
+    <div class="btn-group">
+      <button class="btn-undo" id="undoBtn" disabled>Undo</button>
+      <button class="btn-reset" id="resetBtn">Clear board</button>
+    </div>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <footer>Counts and color save automatically on this device.</footer>
+</div>
+
+<script>
+(function () {
+  const STORAGE_KEY = 'kenoTrackerState_v1';
+  const NUM_COUNT = 80;
+  const MAX_LEVEL = 8; // taps to reach full saturation
+
+  const boardEl = document.getElementById('board');
+  const colorInput = document.getElementById('colorInput');
+  const undoBtn = document.getElementById('undoBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  let counts = new Array(NUM_COUNT + 1).fill(0); // index 1..80
+  let history = []; // stack of number indices tapped, for undo
+  let color = '#B5443B';
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        if (Array.isArray(data.counts) && data.counts.length === NUM_COUNT + 1) {
+          counts = data.counts;
+        }
+        if (typeof data.color === 'string') color = data.color;
+      }
+    } catch (e) { /* ignore corrupt state */ }
+  }
+
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ counts, color }));
+    } catch (e) { /* storage unavailable */ }
+  }
+
+  function hexToRgb(hex) {
+    const h = hex.replace('#', '');
+    const full = h.length === 3 ? h.split('').map(c => c + c).join('') : h;
+    const num = parseInt(full, 16);
+    return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+  }
+
+  function mix(c1, c2, t) {
+    return [0, 1, 2].map(i => Math.round(c1[i] + (c2[i] - c1[i]) * t));
+  }
+
+  function luminance([r, g, b]) {
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  }
+
+  function colorForCount(count) {
+    if (count <= 0) return { bg: [255, 255, 255], text: '#142019' };
+    const target = hexToRgb(color);
+    let rgb;
+    if (count <= MAX_LEVEL) {
+      rgb = mix([255, 255, 255], target, count / MAX_LEVEL);
+    } else {
+      const extra = Math.min((count - MAX_LEVEL) / MAX_LEVEL, 1);
+      rgb = mix(target, [0, 0, 0], extra * 0.55);
+    }
+    const text = luminance(rgb) > 140 ? '#142019' : '#F4EDE4';
+    return { bg: rgb, text };
+  }
+
+  function render() {
+    for (let n = 1; n <= NUM_COUNT; n++) {
+      const cell = boardEl.children[n - 1];
+      const count = counts[n];
+      const { bg, text } = colorForCount(count);
+      cell.style.backgroundColor = `rgb(${bg[0]}, ${bg[1]}, ${bg[2]})`;
+      cell.style.color = text;
+      const badge = cell.querySelector('.count-badge');
+      if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+    undoBtn.disabled = history.length === 0;
+  }
+
+  function buildBoard() {
+    const frag = document.createDocumentFragment();
+    for (let n = 1; n <= NUM_COUNT; n++) {
+      const btn = document.createElement('button');
+      btn.className = 'ball';
+      btn.type = 'button';
+      btn.setAttribute('aria-label', 'Number ' + n);
+      btn.dataset.num = n;
+      btn.innerHTML = n + '<span class="count-badge"></span>';
+      btn.addEventListener('click', () => tapNumber(n));
+      frag.appendChild(btn);
+    }
+    boardEl.appendChild(frag);
+  }
+
+  function tapNumber(n) {
+    counts[n] += 1;
+    history.push(n);
+    saveState();
+    render();
+  }
+
+  function undo() {
+    if (history.length === 0) return;
+    const n = history.pop();
+    counts[n] = Math.max(0, counts[n] - 1);
+    saveState();
+    render();
+  }
+
+  function resetBoard() {
+    if (!confirm('Clear all tap counts? This cannot be undone.')) return;
+    counts = new Array(NUM_COUNT + 1).fill(0);
+    history = [];
+    saveState();
+    render();
+  }
+
+  colorInput.addEventListener('input', (e) => {
+    color = e.target.value;
+    saveState();
+    render();
+  });
+
+  undoBtn.addEventListener('click', undo);
+  resetBtn.addEventListener('click', resetBoard);
+
+  loadState();
+  colorInput.value = color;
+  buildBoard();
+  render();
+})();
+</script>
+</body>
+</html>
