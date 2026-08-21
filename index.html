@@ -43,25 +43,46 @@
   }
 
   header {
-    padding: 18px 4px 10px;
+    padding: 16px 4px 10px;
     text-align: center;
   }
 
   h1 {
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
-    font-size: clamp(24px, 6vw, 32px);
+    font-size: clamp(22px, 6vw, 30px);
     margin: 0;
     letter-spacing: 0.5px;
     color: var(--gold-soft);
   }
 
   .subtitle {
-    font-size: 12px;
+    font-size: 11px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
     color: rgba(244, 237, 228, 0.55);
     margin-top: 4px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-top: 12px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 12px;
+    padding: 4px;
+  }
+  .tab-btn {
+    flex: 1;
+    background: transparent;
+    color: rgba(244,237,228,0.6);
+    padding: 8px 10px;
+    border-radius: 9px;
+    font-size: 13px;
+  }
+  .tab-btn.active {
+    background: var(--gold);
+    color: var(--felt-dark);
   }
 
   .controls {
@@ -69,11 +90,12 @@
     align-items: center;
     justify-content: space-between;
     gap: 10px;
+    flex-wrap: wrap;
     background: rgba(0,0,0,0.18);
     border: 1px solid rgba(212,175,55,0.25);
     border-radius: 14px;
     padding: 10px 12px;
-    margin: 12px 0 16px;
+    margin: 12px 0 10px;
   }
 
   .color-pick {
@@ -119,15 +141,66 @@
   button:disabled { opacity: 0.35; cursor: default; }
   button:disabled:active { transform: none; }
 
-  .btn-undo {
-    background: var(--gold);
-    color: var(--felt-dark);
+  .btn-undo { background: var(--gold); color: var(--felt-dark); }
+  .btn-reset { background: transparent; color: var(--danger); border: 1px solid rgba(181,68,59,0.6); }
+
+  .session-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: rgba(0,0,0,0.18);
+    border: 1px solid rgba(212,175,55,0.25);
+    border-radius: 14px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
   }
-  .btn-reset {
+
+  .games-count {
+    font-size: 12px;
+    color: rgba(244,237,228,0.8);
+    font-weight: 500;
+  }
+  .games-count b { color: var(--gold-soft); font-family: 'Space Grotesk', sans-serif; font-size: 15px; }
+
+  .btn-log { background: var(--gold-soft); color: var(--felt-dark); }
+  .btn-session { background: var(--felt-light); color: var(--cream); border: 1px solid var(--gold); }
+
+  details.games-list {
+    background: rgba(0,0,0,0.14);
+    border: 1px solid rgba(212,175,55,0.18);
+    border-radius: 12px;
+    padding: 6px 12px;
+    margin-bottom: 12px;
+    font-size: 12px;
+  }
+  details.games-list summary {
+    cursor: pointer;
+    padding: 6px 0;
+    color: rgba(244,237,228,0.75);
+    font-weight: 500;
+    list-style: none;
+  }
+  details.games-list summary::-webkit-details-marker { display: none; }
+  .game-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 0;
+    border-top: 1px solid rgba(212,175,55,0.15);
+  }
+  .game-row .game-info { color: rgba(244,237,228,0.85); }
+  .game-row .game-info .g-num { color: var(--gold-soft); font-weight: 700; }
+  .game-row .del-btn {
     background: transparent;
-    color: var(--danger);
-    border: 1px solid rgba(181,68,59,0.6);
+    color: rgba(181,68,59,0.85);
+    border: none;
+    padding: 2px 8px;
+    font-size: 14px;
   }
+  .empty-note { color: rgba(244,237,228,0.45); font-size: 12px; padding: 6px 0; }
 
   .board {
     display: grid;
@@ -162,7 +235,6 @@
     padding: 0;
     transition: background-color 0.12s ease, color 0.12s ease, transform 0.08s ease;
   }
-
   .ball:active { transform: scale(0.9); }
 
   .ball .count-badge {
@@ -189,8 +261,156 @@
     color: rgba(244,237,228,0.4);
     padding: 14px 4px 4px;
   }
-
   footer a { color: var(--gold-soft); }
+
+  /* Modals */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--felt-dark);
+    border: 1px solid var(--gold);
+    border-radius: 16px;
+    padding: 20px;
+    max-width: 420px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  .modal-box h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    color: var(--gold-soft);
+    margin: 0 0 14px;
+    font-size: 18px;
+  }
+  .field-label {
+    font-size: 12px;
+    color: rgba(244,237,228,0.7);
+    display: block;
+    margin-bottom: 4px;
+  }
+  input[type="text"], input[type="number"], input[type="date"], input[type="time"], select {
+    width: 100%;
+    padding: 9px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(212,175,55,0.4);
+    background: rgba(255,255,255,0.06);
+    color: var(--cream);
+    font-size: 14px;
+    margin-bottom: 12px;
+    font-family: 'Inter', sans-serif;
+  }
+  select option { background: var(--felt-dark); color: var(--cream); }
+  .field-row { display: flex; gap: 10px; }
+  .field-row > div { flex: 1; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .chip {
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(212,175,55,0.4);
+    background: transparent;
+    color: var(--cream);
+    font-size: 13px;
+  }
+  .chip.selected { background: var(--gold); color: var(--felt-dark); border-color: var(--gold); font-weight: 700; }
+  .hit-preview {
+    font-size: 12px;
+    color: rgba(244,237,228,0.65);
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+  .btn-cancel { background: transparent; color: rgba(244,237,228,0.7); border: 1px solid rgba(244,237,228,0.3); }
+  .btn-save { background: var(--gold); color: var(--felt-dark); font-weight: 700; }
+
+  /* History view */
+  .view { display: none; }
+  .view.active { display: block; }
+  .history-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .history-toolbar span { font-size: 12px; color: rgba(244,237,228,0.6); }
+  .session-card {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(212,175,55,0.25);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+  .session-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    cursor: pointer;
+    gap: 8px;
+  }
+  .session-card h3 {
+    margin: 0;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    color: var(--gold-soft);
+  }
+  .session-meta { font-size: 11px; color: rgba(244,237,228,0.55); margin-top: 3px; }
+  .session-card .del-btn {
+    background: transparent;
+    color: rgba(181,68,59,0.85);
+    border: none;
+    font-size: 16px;
+    padding: 0 4px;
+  }
+  .session-details { margin-top: 10px; display: none; }
+  .session-details.open { display: block; }
+  .game-entry {
+    font-size: 12.5px;
+    padding: 6px 0;
+    border-top: 1px solid rgba(212,175,55,0.15);
+    color: rgba(244,237,228,0.85);
+  }
+  .mini-board {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 3px;
+    margin-top: 10px;
+  }
+  .mini-ball {
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    font-size: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #142019;
+    font-weight: 700;
+    background: #fff;
+  }
+  .no-history { text-align: center; color: rgba(244,237,228,0.5); font-size: 13px; padding: 30px 10px; }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--gold);
+    color: var(--felt-dark);
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 200;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
@@ -198,76 +418,235 @@
   <header>
     <h1>Keno Tracker</h1>
     <div class="subtitle">Tap a number to log a hit</div>
+    <div class="tabs">
+      <button class="tab-btn active" id="tabBoardBtn">Board</button>
+      <button class="tab-btn" id="tabHistoryBtn">History</button>
+    </div>
   </header>
 
-  <div class="controls">
-    <div class="color-pick">
-      <label for="colorInput">Color</label>
-      <input type="color" id="colorInput" value="#B5443B">
+  <!-- MAIN BOARD VIEW -->
+  <div class="view active" id="boardView">
+    <div class="controls">
+      <div class="color-pick">
+        <label for="colorInput">Color</label>
+        <input type="color" id="colorInput" value="#B5443B">
+      </div>
+      <div class="btn-group">
+        <button class="btn-undo" id="undoBtn" disabled>Undo</button>
+        <button class="btn-reset" id="resetBtn">Clear board</button>
+      </div>
     </div>
-    <div class="btn-group">
-      <button class="btn-undo" id="undoBtn" disabled>Undo</button>
-      <button class="btn-reset" id="resetBtn">Clear board</button>
+
+    <div class="session-row">
+      <div class="games-count">Games logged this session: <b id="gamesCountLabel">0</b></div>
+      <div class="btn-group">
+        <button class="btn-log" id="logGameBtn">Log Game</button>
+        <button class="btn-session" id="logSessionBtn">Log Session</button>
+      </div>
     </div>
+
+    <details class="games-list" id="gamesListWrap">
+      <summary>Games this session</summary>
+      <div id="gamesListItems"><div class="empty-note">No games logged yet.</div></div>
+    </details>
+
+    <div class="board" id="board"></div>
+
+    <footer>Counts and color save automatically on this device.</footer>
   </div>
 
-  <div class="board" id="board"></div>
-
-  <footer>Counts and color save automatically on this device.</footer>
+  <!-- HISTORY VIEW -->
+  <div class="view" id="historyView">
+    <div class="history-toolbar">
+      <span id="historyCountLabel">0 sessions logged</span>
+      <button class="btn-reset" id="clearHistoryBtn">Clear all history</button>
+    </div>
+    <div id="historyList"></div>
+  </div>
 </div>
+
+<!-- LOG GAME MODAL -->
+<div class="modal-overlay" id="gameModalOverlay">
+  <div class="modal-box">
+    <h2>Log Game</h2>
+    <label class="field-label" for="gameNumberInput">Game number</label>
+    <input type="text" id="gameNumberInput" placeholder="e.g. 1">
+
+    <label class="field-label">Multiplier</label>
+    <div class="chip-row" id="multiplierChipRow">
+      <button class="chip selected" data-val="None">None</button>
+      <button class="chip" data-val="2X">2X</button>
+      <button class="chip" data-val="3X">3X</button>
+      <button class="chip" data-val="4X">4X</button>
+      <button class="chip" data-val="5X">5X</button>
+      <button class="chip" data-val="8X">8X</button>
+      <button class="chip" data-val="10X">10X</button>
+      <button class="chip" data-val="20X">20X</button>
+      <button class="chip" data-val="custom">Custom&hellip;</button>
+    </div>
+    <input type="text" id="customMultiplierInput" placeholder="Custom multiplier (e.g. 6X)" style="display:none;">
+
+    <div class="field-label">Numbers hit this game</div>
+    <div class="hit-preview" id="hitPreview">None yet — tap the numbers drawn this game.</div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" id="gameModalCancel">Cancel</button>
+      <button class="btn-save" id="gameModalSave">Save Game</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOG SESSION MODAL -->
+<div class="modal-overlay" id="sessionModalOverlay">
+  <div class="modal-box">
+    <h2>Log Session</h2>
+
+    <div class="field-row">
+      <div>
+        <label class="field-label" for="startDateInput">Start date</label>
+        <input type="date" id="startDateInput">
+      </div>
+      <div>
+        <label class="field-label" for="startTimeInput">Start time</label>
+        <input type="time" id="startTimeInput">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div>
+        <label class="field-label" for="endDateInput">End date</label>
+        <input type="date" id="endDateInput">
+      </div>
+      <div>
+        <label class="field-label" for="endTimeInput">End time</label>
+        <input type="time" id="endTimeInput">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div>
+        <label class="field-label" for="dayOfWeekInput">Day of week</label>
+        <select id="dayOfWeekInput">
+          <option>Sunday</option><option>Monday</option><option>Tuesday</option>
+          <option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label" for="monthInput">Month</label>
+        <select id="monthInput">
+          <option>January</option><option>February</option><option>March</option><option>April</option>
+          <option>May</option><option>June</option><option>July</option><option>August</option>
+          <option>September</option><option>October</option><option>November</option><option>December</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" id="sessionModalCancel">Cancel</button>
+      <button class="btn-save" id="sessionModalSave">Save &amp; Clear Board</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
 (function () {
-  const STORAGE_KEY = 'kenoTrackerState_v1';
+  const STORAGE_KEY = 'kenoTrackerState_v2';
+  const HISTORY_KEY = 'kenoSessionHistory_v1';
   const NUM_COUNT = 80;
-  const MAX_LEVEL = 8; // taps to reach full saturation
+  const MAX_LEVEL = 8;
+  const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
+  // ---- state ----
+  let counts = new Array(NUM_COUNT + 1).fill(0);        // cumulative, session-long (drives board color)
+  let gameTapCounts = new Array(NUM_COUNT + 1).fill(0); // taps since last Log Game
+  let tapHistory = [];                                   // undo stack of number indices
+  let sessionGames = [];                                 // logged games this session
+  let sessionStart = null;                               // ISO timestamp, set on first tap of a fresh session
+  let color = '#B5443B';
+  let selectedMultiplier = 'None';
+  let sessionHistoryData = [];
+
+  // ---- elements ----
   const boardEl = document.getElementById('board');
   const colorInput = document.getElementById('colorInput');
   const undoBtn = document.getElementById('undoBtn');
   const resetBtn = document.getElementById('resetBtn');
+  const gamesCountLabel = document.getElementById('gamesCountLabel');
+  const gamesListItems = document.getElementById('gamesListItems');
+  const logGameBtn = document.getElementById('logGameBtn');
+  const logSessionBtn = document.getElementById('logSessionBtn');
 
-  let counts = new Array(NUM_COUNT + 1).fill(0); // index 1..80
-  let history = []; // stack of number indices tapped, for undo
-  let color = '#B5443B';
+  const gameModalOverlay = document.getElementById('gameModalOverlay');
+  const gameNumberInput = document.getElementById('gameNumberInput');
+  const multiplierChipRow = document.getElementById('multiplierChipRow');
+  const customMultiplierInput = document.getElementById('customMultiplierInput');
+  const hitPreview = document.getElementById('hitPreview');
+  const gameModalCancel = document.getElementById('gameModalCancel');
+  const gameModalSave = document.getElementById('gameModalSave');
 
+  const sessionModalOverlay = document.getElementById('sessionModalOverlay');
+  const startDateInput = document.getElementById('startDateInput');
+  const startTimeInput = document.getElementById('startTimeInput');
+  const endDateInput = document.getElementById('endDateInput');
+  const endTimeInput = document.getElementById('endTimeInput');
+  const dayOfWeekInput = document.getElementById('dayOfWeekInput');
+  const monthInput = document.getElementById('monthInput');
+  const sessionModalCancel = document.getElementById('sessionModalCancel');
+  const sessionModalSave = document.getElementById('sessionModalSave');
+
+  const tabBoardBtn = document.getElementById('tabBoardBtn');
+  const tabHistoryBtn = document.getElementById('tabHistoryBtn');
+  const boardView = document.getElementById('boardView');
+  const historyView = document.getElementById('historyView');
+  const historyList = document.getElementById('historyList');
+  const historyCountLabel = document.getElementById('historyCountLabel');
+  const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+  const toast = document.getElementById('toast');
+
+  // ---- persistence ----
   function loadState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const data = JSON.parse(raw);
-        if (Array.isArray(data.counts) && data.counts.length === NUM_COUNT + 1) {
-          counts = data.counts;
-        }
+        if (Array.isArray(data.counts) && data.counts.length === NUM_COUNT + 1) counts = data.counts;
+        if (Array.isArray(data.gameTapCounts) && data.gameTapCounts.length === NUM_COUNT + 1) gameTapCounts = data.gameTapCounts;
         if (typeof data.color === 'string') color = data.color;
+        if (Array.isArray(data.sessionGames)) sessionGames = data.sessionGames;
+        if (typeof data.sessionStart === 'string' || data.sessionStart === null) sessionStart = data.sessionStart;
       }
     } catch (e) { /* ignore corrupt state */ }
+    try {
+      const rawHist = localStorage.getItem(HISTORY_KEY);
+      if (rawHist) sessionHistoryData = JSON.parse(rawHist) || [];
+    } catch (e) { sessionHistoryData = []; }
   }
 
   function saveState() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ counts, color }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ counts, gameTapCounts, color, sessionGames, sessionStart }));
     } catch (e) { /* storage unavailable */ }
   }
 
+  function saveHistory() {
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(sessionHistoryData)); } catch (e) {}
+  }
+
+  // ---- color helpers ----
   function hexToRgb(hex) {
     const h = hex.replace('#', '');
     const full = h.length === 3 ? h.split('').map(c => c + c).join('') : h;
     const num = parseInt(full, 16);
     return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
   }
-
-  function mix(c1, c2, t) {
-    return [0, 1, 2].map(i => Math.round(c1[i] + (c2[i] - c1[i]) * t));
-  }
-
-  function luminance([r, g, b]) {
-    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  }
-
-  function colorForCount(count) {
+  function mix(c1, c2, t) { return [0, 1, 2].map(i => Math.round(c1[i] + (c2[i] - c1[i]) * t)); }
+  function luminance([r, g, b]) { return 0.2126 * r + 0.7152 * g + 0.0722 * b; }
+  function colorForCount(count, baseHex) {
     if (count <= 0) return { bg: [255, 255, 255], text: '#142019' };
-    const target = hexToRgb(color);
+    const target = hexToRgb(baseHex);
     let rgb;
     if (count <= MAX_LEVEL) {
       rgb = mix([255, 255, 255], target, count / MAX_LEVEL);
@@ -279,22 +658,30 @@
     return { bg: rgb, text };
   }
 
+  // ---- date helpers ----
+  function localDateStr(d) { const off = d.getTimezoneOffset(); const l = new Date(d.getTime() - off * 60000); return l.toISOString().slice(0, 10); }
+  function localTimeStr(d) { const off = d.getTimezoneOffset(); const l = new Date(d.getTime() - off * 60000); return l.toISOString().slice(11, 16); }
+  function dayMonthFromDateStr(dateStr) {
+    if (!dateStr) return { day: DAYS[0], month: MONTHS[0] };
+    const d = new Date(dateStr + 'T00:00:00');
+    return { day: DAYS[d.getDay()], month: MONTHS[d.getMonth()] };
+  }
+
+  // ---- board render ----
   function render() {
     for (let n = 1; n <= NUM_COUNT; n++) {
       const cell = boardEl.children[n - 1];
       const count = counts[n];
-      const { bg, text } = colorForCount(count);
+      const { bg, text } = colorForCount(count, color);
       cell.style.backgroundColor = `rgb(${bg[0]}, ${bg[1]}, ${bg[2]})`;
       cell.style.color = text;
       const badge = cell.querySelector('.count-badge');
-      if (count > 0) {
-        badge.textContent = count;
-        badge.style.display = 'flex';
-      } else {
-        badge.style.display = 'none';
-      }
+      if (count > 0) { badge.textContent = count; badge.style.display = 'flex'; }
+      else { badge.style.display = 'none'; }
     }
-    undoBtn.disabled = history.length === 0;
+    undoBtn.disabled = tapHistory.length === 0;
+    gamesCountLabel.textContent = sessionGames.length;
+    renderGamesList();
   }
 
   function buildBoard() {
@@ -313,37 +700,290 @@
   }
 
   function tapNumber(n) {
+    if (!sessionStart) sessionStart = new Date().toISOString();
     counts[n] += 1;
-    history.push(n);
+    gameTapCounts[n] += 1;
+    tapHistory.push(n);
     saveState();
     render();
   }
 
   function undo() {
-    if (history.length === 0) return;
-    const n = history.pop();
+    if (tapHistory.length === 0) return;
+    const n = tapHistory.pop();
     counts[n] = Math.max(0, counts[n] - 1);
+    gameTapCounts[n] = Math.max(0, gameTapCounts[n] - 1);
     saveState();
     render();
   }
 
   function resetBoard() {
-    if (!confirm('Clear all tap counts? This cannot be undone.')) return;
+    if (!confirm('Clear the board without logging a session? This cannot be undone.')) return;
     counts = new Array(NUM_COUNT + 1).fill(0);
-    history = [];
+    gameTapCounts = new Array(NUM_COUNT + 1).fill(0);
+    tapHistory = [];
+    sessionGames = [];
+    sessionStart = null;
     saveState();
     render();
   }
 
-  colorInput.addEventListener('input', (e) => {
-    color = e.target.value;
+  // ---- games list (current session) ----
+  function renderGamesList() {
+    if (sessionGames.length === 0) {
+      gamesListItems.innerHTML = '<div class="empty-note">No games logged yet.</div>';
+      return;
+    }
+    gamesListItems.innerHTML = '';
+    sessionGames.forEach((g, idx) => {
+      const row = document.createElement('div');
+      row.className = 'game-row';
+      const numbersStr = g.numbers.length ? g.numbers.map(x => x.number + (x.hits > 1 ? '(\u00d7' + x.hits + ')' : '')).join(', ') : 'none';
+      row.innerHTML = `<div class="game-info"><span class="g-num">#${escapeHtml(g.gameNumber)}</span> &middot; ${escapeHtml(g.multiplier)} &middot; ${g.numbers.length} numbers</div>`;
+      const del = document.createElement('button');
+      del.className = 'del-btn';
+      del.innerHTML = '&times;';
+      del.title = 'Remove this logged game';
+      del.addEventListener('click', (e) => { e.stopPropagation(); deleteGame(idx); });
+      row.appendChild(del);
+      row.title = 'Numbers: ' + numbersStr;
+      gamesListItems.appendChild(row);
+    });
+  }
+
+  function deleteGame(idx) {
+    if (!confirm('Remove this logged game from the session?')) return;
+    sessionGames.splice(idx, 1);
     saveState();
     render();
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+  }
+
+  // ---- Log Game modal ----
+  function openGameModal() {
+    gameNumberInput.value = String(sessionGames.length + 1);
+    selectedMultiplier = 'None';
+    [...multiplierChipRow.children].forEach(c => c.classList.toggle('selected', c.dataset.val === 'None'));
+    customMultiplierInput.style.display = 'none';
+    customMultiplierInput.value = '';
+
+    const hitNumbers = [];
+    for (let n = 1; n <= NUM_COUNT; n++) if (gameTapCounts[n] > 0) hitNumbers.push({ number: n, hits: gameTapCounts[n] });
+    if (hitNumbers.length === 0) {
+      hitPreview.textContent = 'None yet — tap the numbers drawn this game.';
+    } else {
+      hitPreview.textContent = hitNumbers.map(x => x.number + (x.hits > 1 ? ' (\u00d7' + x.hits + ')' : '')).join(', ');
+    }
+    gameModalOverlay.classList.add('open');
+  }
+  function closeGameModal() { gameModalOverlay.classList.remove('open'); }
+
+  multiplierChipRow.addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    [...multiplierChipRow.children].forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+    selectedMultiplier = chip.dataset.val;
+    customMultiplierInput.style.display = selectedMultiplier === 'custom' ? 'block' : 'none';
+    if (selectedMultiplier === 'custom') customMultiplierInput.focus();
   });
 
+  function saveGame() {
+    const gameNumber = gameNumberInput.value.trim();
+    if (!gameNumber) { alert('Please enter a game number.'); return; }
+    let multiplier = selectedMultiplier;
+    if (multiplier === 'custom') {
+      const custom = customMultiplierInput.value.trim();
+      if (!custom) { alert('Please enter a custom multiplier, or pick a preset.'); return; }
+      multiplier = custom;
+    }
+    const numbers = [];
+    for (let n = 1; n <= NUM_COUNT; n++) if (gameTapCounts[n] > 0) numbers.push({ number: n, hits: gameTapCounts[n] });
+
+    sessionGames.push({ gameNumber, multiplier, numbers, loggedAt: new Date().toISOString() });
+    gameTapCounts = new Array(NUM_COUNT + 1).fill(0);
+    tapHistory = [];
+    saveState();
+    render();
+    closeGameModal();
+    showToast('Game ' + gameNumber + ' logged');
+  }
+
+  logGameBtn.addEventListener('click', openGameModal);
+  gameModalCancel.addEventListener('click', closeGameModal);
+  gameModalSave.addEventListener('click', saveGame);
+  gameModalOverlay.addEventListener('click', (e) => { if (e.target === gameModalOverlay) closeGameModal(); });
+
+  // ---- Log Session modal ----
+  function openSessionModal() {
+    const startD = sessionStart ? new Date(sessionStart) : new Date();
+    const now = new Date();
+    startDateInput.value = localDateStr(startD);
+    startTimeInput.value = localTimeStr(startD);
+    endDateInput.value = localDateStr(now);
+    endTimeInput.value = localTimeStr(now);
+    const dm = dayMonthFromDateStr(startDateInput.value);
+    dayOfWeekInput.value = dm.day;
+    monthInput.value = dm.month;
+    sessionModalOverlay.classList.add('open');
+  }
+  function closeSessionModal() { sessionModalOverlay.classList.remove('open'); }
+
+  startDateInput.addEventListener('change', () => {
+    const dm = dayMonthFromDateStr(startDateInput.value);
+    dayOfWeekInput.value = dm.day;
+    monthInput.value = dm.month;
+  });
+
+  function saveSessionAndClear() {
+    if (!startDateInput.value || !endDateInput.value) { alert('Please set a start and end date.'); return; }
+    const nonzero = {};
+    for (let n = 1; n <= NUM_COUNT; n++) if (counts[n] > 0) nonzero[n] = counts[n];
+
+    const record = {
+      id: Date.now(),
+      startDate: startDateInput.value,
+      startTime: startTimeInput.value,
+      endDate: endDateInput.value,
+      endTime: endTimeInput.value,
+      dayOfWeek: dayOfWeekInput.value,
+      month: monthInput.value,
+      color: color,
+      games: sessionGames,
+      counts: nonzero,
+      loggedAt: new Date().toISOString()
+    };
+    sessionHistoryData.unshift(record);
+    saveHistory();
+
+    counts = new Array(NUM_COUNT + 1).fill(0);
+    gameTapCounts = new Array(NUM_COUNT + 1).fill(0);
+    tapHistory = [];
+    sessionGames = [];
+    sessionStart = null;
+    saveState();
+    render();
+    closeSessionModal();
+    showToast('Session logged and board cleared');
+  }
+
+  logSessionBtn.addEventListener('click', openSessionModal);
+  sessionModalCancel.addEventListener('click', closeSessionModal);
+  sessionModalSave.addEventListener('click', saveSessionAndClear);
+  sessionModalOverlay.addEventListener('click', (e) => { if (e.target === sessionModalOverlay) closeSessionModal(); });
+
+  // ---- toast ----
+  let toastTimer = null;
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  // ---- tabs / history view ----
+  function showTab(tab) {
+    if (tab === 'board') {
+      boardView.classList.add('active');
+      historyView.classList.remove('active');
+      tabBoardBtn.classList.add('active');
+      tabHistoryBtn.classList.remove('active');
+    } else {
+      boardView.classList.remove('active');
+      historyView.classList.add('active');
+      tabBoardBtn.classList.remove('active');
+      tabHistoryBtn.classList.add('active');
+      renderHistoryList();
+    }
+  }
+  tabBoardBtn.addEventListener('click', () => showTab('board'));
+  tabHistoryBtn.addEventListener('click', () => showTab('history'));
+
+  function renderHistoryList() {
+    historyCountLabel.textContent = sessionHistoryData.length + (sessionHistoryData.length === 1 ? ' session logged' : ' sessions logged');
+    if (sessionHistoryData.length === 0) {
+      historyList.innerHTML = '<div class="no-history">No sessions logged yet. Play a session, then tap &ldquo;Log Session&rdquo; to archive it here.</div>';
+      return;
+    }
+    historyList.innerHTML = '';
+    sessionHistoryData.forEach((rec, idx) => {
+      const card = document.createElement('div');
+      card.className = 'session-card';
+
+      const header = document.createElement('div');
+      header.className = 'session-card-header';
+      header.innerHTML = `
+        <div>
+          <h3>${escapeHtml(rec.month)} ${escapeHtml(rec.startDate)} &mdash; ${escapeHtml(rec.dayOfWeek)}</h3>
+          <div class="session-meta">${escapeHtml(rec.startTime || '')} to ${escapeHtml(rec.endTime || '')} on ${escapeHtml(rec.endDate)} &middot; ${rec.games.length} games logged</div>
+        </div>`;
+      const del = document.createElement('button');
+      del.className = 'del-btn';
+      del.innerHTML = '&times;';
+      del.title = 'Delete this session';
+      del.addEventListener('click', (e) => { e.stopPropagation(); deleteSession(idx); });
+      header.appendChild(del);
+
+      const details = document.createElement('div');
+      details.className = 'session-details';
+
+      if (rec.games.length === 0) {
+        details.innerHTML = '<div class="empty-note">No individual games were logged in this session.</div>';
+      } else {
+        rec.games.forEach(g => {
+          const numbersStr = g.numbers.length ? g.numbers.map(x => x.number + (x.hits > 1 ? ' (\u00d7' + x.hits + ')' : '')).join(', ') : 'none';
+          const entry = document.createElement('div');
+          entry.className = 'game-entry';
+          entry.innerHTML = `<b>#${escapeHtml(g.gameNumber)}</b> &middot; ${escapeHtml(g.multiplier)} &middot; ${escapeHtml(numbersStr)}`;
+          details.appendChild(entry);
+        });
+      }
+
+      const mini = document.createElement('div');
+      mini.className = 'mini-board';
+      for (let n = 1; n <= NUM_COUNT; n++) {
+        const c = (rec.counts && rec.counts[n]) ? rec.counts[n] : 0;
+        const { bg } = colorForCount(c, rec.color || '#B5443B');
+        const b = document.createElement('div');
+        b.className = 'mini-ball';
+        b.style.backgroundColor = `rgb(${bg[0]}, ${bg[1]}, ${bg[2]})`;
+        b.textContent = n;
+        mini.appendChild(b);
+      }
+      details.appendChild(mini);
+
+      header.addEventListener('click', () => details.classList.toggle('open'));
+
+      card.appendChild(header);
+      card.appendChild(details);
+      historyList.appendChild(card);
+    });
+  }
+
+  function deleteSession(idx) {
+    if (!confirm('Delete this logged session? This cannot be undone.')) return;
+    sessionHistoryData.splice(idx, 1);
+    saveHistory();
+    renderHistoryList();
+  }
+
+  clearHistoryBtn.addEventListener('click', () => {
+    if (sessionHistoryData.length === 0) return;
+    if (!confirm('Clear ALL session history? This cannot be undone.')) return;
+    sessionHistoryData = [];
+    saveHistory();
+    renderHistoryList();
+  });
+
+  // ---- misc controls ----
+  colorInput.addEventListener('input', (e) => { color = e.target.value; saveState(); render(); });
   undoBtn.addEventListener('click', undo);
   resetBtn.addEventListener('click', resetBoard);
 
+  // ---- init ----
   loadState();
   colorInput.value = color;
   buildBoard();
