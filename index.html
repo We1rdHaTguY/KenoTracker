@@ -42,10 +42,7 @@
     flex-direction: column;
   }
 
-  header {
-    padding: 16px 4px 10px;
-    text-align: center;
-  }
+  header { padding: 16px 4px 10px; text-align: center; }
 
   h1 {
     font-family: 'Space Grotesk', sans-serif;
@@ -64,77 +61,43 @@
     margin-top: 4px;
   }
 
-  .tabs {
-    display: flex;
-    gap: 6px;
-    margin-top: 12px;
-    background: rgba(0,0,0,0.2);
-    border-radius: 12px;
-    padding: 4px;
-  }
-  .tab-btn {
-    flex: 1;
-    background: transparent;
-    color: rgba(244,237,228,0.6);
-    padding: 8px 10px;
-    border-radius: 9px;
-    font-size: 13px;
-  }
-  .tab-btn.active {
-    background: var(--gold);
-    color: var(--felt-dark);
-  }
+  .tabs { display: flex; gap: 6px; margin-top: 12px; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 4px; }
+  .tab-btn { flex: 1; background: transparent; color: rgba(244,237,228,0.6); padding: 8px 10px; border-radius: 9px; font-size: 13px; }
+  .tab-btn.active { background: var(--gold); color: var(--felt-dark); }
 
-  .controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    flex-wrap: wrap;
+  .panel {
     background: rgba(0,0,0,0.18);
     border: 1px solid rgba(212,175,55,0.25);
     border-radius: 14px;
-    padding: 10px 12px;
-    margin: 12px 0 10px;
+    padding: 12px;
+    margin: 0 0 10px;
   }
-
-  .color-pick {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .color-pick label {
+  .panel-title {
+    font-family: 'Space Grotesk', sans-serif;
     font-size: 12px;
-    color: rgba(244,237,228,0.7);
-    font-weight: 500;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--gold-soft);
+    margin: 0 0 10px;
   }
+
+  .controls { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .color-pick { display: flex; align-items: center; gap: 8px; }
+  .color-pick label { font-size: 12px; color: rgba(244,237,228,0.7); font-weight: 500; }
 
   input[type="color"] {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 34px;
-    height: 34px;
-    border: 2px solid var(--gold);
-    border-radius: 50%;
-    padding: 0;
-    background: none;
-    cursor: pointer;
-    overflow: hidden;
+    -webkit-appearance: none; appearance: none; width: 34px; height: 34px;
+    border: 2px solid var(--gold); border-radius: 50%; padding: 0; background: none;
+    cursor: pointer; overflow: hidden;
   }
   input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
   input[type="color"]::-webkit-color-swatch { border: none; border-radius: 50%; }
 
-  .btn-group { display: flex; gap: 8px; }
+  .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
 
   button {
-    font-family: 'Inter', sans-serif;
-    font-weight: 600;
-    font-size: 13px;
-    border: none;
-    border-radius: 10px;
-    padding: 9px 14px;
-    cursor: pointer;
+    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13px;
+    border: none; border-radius: 10px; padding: 9px 14px; cursor: pointer;
     transition: transform 0.08s ease, opacity 0.15s ease;
   }
   button:active { transform: scale(0.94); }
@@ -143,272 +106,104 @@
 
   .btn-undo { background: var(--gold); color: var(--felt-dark); }
   .btn-reset { background: transparent; color: var(--danger); border: 1px solid rgba(181,68,59,0.6); }
-
-  .session-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    flex-wrap: wrap;
-    background: rgba(0,0,0,0.18);
-    border: 1px solid rgba(212,175,55,0.25);
-    border-radius: 14px;
-    padding: 10px 12px;
-    margin-bottom: 12px;
-  }
-
-  .games-count {
-    font-size: 12px;
-    color: rgba(244,237,228,0.8);
-    font-weight: 500;
-  }
-  .games-count b { color: var(--gold-soft); font-family: 'Space Grotesk', sans-serif; font-size: 15px; }
-
-  .btn-log { background: var(--gold-soft); color: var(--felt-dark); }
+  .btn-log { background: var(--gold-soft); color: var(--felt-dark); width: 100%; margin-top: 4px; }
   .btn-session { background: var(--felt-light); color: var(--cream); border: 1px solid var(--gold); }
 
-  details.games-list {
-    background: rgba(0,0,0,0.14);
-    border: 1px solid rgba(212,175,55,0.18);
-    border-radius: 12px;
-    padding: 6px 12px;
-    margin-bottom: 12px;
-    font-size: 12px;
-  }
-  details.games-list summary {
-    cursor: pointer;
-    padding: 6px 0;
-    color: rgba(244,237,228,0.75);
-    font-weight: 500;
-    list-style: none;
-  }
-  details.games-list summary::-webkit-details-marker { display: none; }
-  .game-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 0;
-    border-top: 1px solid rgba(212,175,55,0.15);
-  }
-  .game-row .game-info { color: rgba(244,237,228,0.85); }
-  .game-row .game-info .g-num { color: var(--gold-soft); font-weight: 700; }
-  .game-row .del-btn {
-    background: transparent;
-    color: rgba(181,68,59,0.85);
-    border: none;
-    padding: 2px 8px;
-    font-size: 14px;
-  }
-  .empty-note { color: rgba(244,237,228,0.45); font-size: 12px; padding: 6px 0; }
-
-  .board {
-    display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    gap: 5px;
-    padding: 8px;
-    background: rgba(0,0,0,0.15);
-    border: 1px solid rgba(212,175,55,0.2);
-    border-radius: 18px;
-    flex: 1;
-  }
-
-  @media (min-width: 460px) {
-    .board { gap: 10px; padding: 14px; }
-  }
-
-  .ball {
-    position: relative;
-    aspect-ratio: 1 / 1;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--ball-white);
-    color: var(--ink);
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 700;
-    font-size: clamp(12px, 3.4vw, 17px);
-    border: none;
-    box-shadow: inset 0 -3px 6px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.35);
-    user-select: none;
-    padding: 0;
-    transition: background-color 0.12s ease, color 0.12s ease, transform 0.08s ease;
-  }
-  .ball:active { transform: scale(0.9); }
-
-  .ball .count-badge {
-    position: absolute;
-    bottom: -3px;
-    right: -3px;
-    min-width: 16px;
-    height: 16px;
-    padding: 0 3px;
-    background: var(--gold);
-    color: var(--felt-dark);
-    border-radius: 999px;
-    font-size: 9px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.4);
-  }
-
-  footer {
-    text-align: center;
-    font-size: 11px;
-    color: rgba(244,237,228,0.4);
-    padding: 14px 4px 4px;
-  }
-  footer a { color: var(--gold-soft); }
-
-  /* Modals */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.65);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    padding: 16px;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal-box {
-    background: var(--felt-dark);
-    border: 1px solid var(--gold);
-    border-radius: 16px;
-    padding: 20px;
-    max-width: 420px;
-    width: 100%;
-    max-height: 85vh;
-    overflow-y: auto;
-  }
-  .modal-box h2 {
-    font-family: 'Space Grotesk', sans-serif;
-    color: var(--gold-soft);
-    margin: 0 0 14px;
-    font-size: 18px;
-  }
-  .field-label {
-    font-size: 12px;
-    color: rgba(244,237,228,0.7);
-    display: block;
-    margin-bottom: 4px;
-  }
+  .field-label { font-size: 12px; color: rgba(244,237,228,0.7); display: block; margin-bottom: 4px; }
   input[type="text"], input[type="number"], input[type="date"], input[type="time"], select {
-    width: 100%;
-    padding: 9px 10px;
-    border-radius: 8px;
-    border: 1px solid rgba(212,175,55,0.4);
-    background: rgba(255,255,255,0.06);
-    color: var(--cream);
-    font-size: 14px;
-    margin-bottom: 12px;
+    width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid rgba(212,175,55,0.4);
+    background: rgba(255,255,255,0.06); color: var(--cream); font-size: 14px; margin-bottom: 10px;
     font-family: 'Inter', sans-serif;
   }
   select option { background: var(--felt-dark); color: var(--cream); }
   .field-row { display: flex; gap: 10px; }
   .field-row > div { flex: 1; }
-  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
   .chip {
-    padding: 6px 12px;
-    border-radius: 999px;
-    border: 1px solid rgba(212,175,55,0.4);
-    background: transparent;
-    color: var(--cream);
-    font-size: 13px;
+    padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(212,175,55,0.4);
+    background: transparent; color: var(--cream); font-size: 13px;
   }
   .chip.selected { background: var(--gold); color: var(--felt-dark); border-color: var(--gold); font-weight: 700; }
+
   .hit-preview {
-    font-size: 12px;
-    color: rgba(244,237,228,0.65);
-    background: rgba(0,0,0,0.2);
-    border-radius: 8px;
-    padding: 8px 10px;
-    margin-bottom: 14px;
-    line-height: 1.5;
+    font-size: 12px; color: rgba(244,237,228,0.65); background: rgba(0,0,0,0.2);
+    border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; line-height: 1.5;
   }
+
+  .games-count { font-size: 12px; color: rgba(244,237,228,0.8); font-weight: 500; }
+  .games-count b { color: var(--gold-soft); font-family: 'Space Grotesk', sans-serif; font-size: 15px; }
+
+  details.games-list { background: rgba(0,0,0,0.14); border: 1px solid rgba(212,175,55,0.18); border-radius: 12px; padding: 6px 12px; margin-bottom: 12px; font-size: 12px; }
+  details.games-list summary { cursor: pointer; padding: 6px 0; color: rgba(244,237,228,0.75); font-weight: 500; list-style: none; }
+  details.games-list summary::-webkit-details-marker { display: none; }
+  .game-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 7px 0; border-top: 1px solid rgba(212,175,55,0.15); }
+  .game-row .game-info { color: rgba(244,237,228,0.85); }
+  .game-row .game-info .g-num { color: var(--gold-soft); font-weight: 700; }
+  .game-row .del-btn { background: transparent; color: rgba(181,68,59,0.85); border: none; padding: 2px 8px; font-size: 14px; }
+  .empty-note { color: rgba(244,237,228,0.45); font-size: 12px; padding: 6px 0; }
+
+  .board {
+    display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; padding: 8px;
+    background: rgba(0,0,0,0.15); border: 1px solid rgba(212,175,55,0.2); border-radius: 18px; flex: 1;
+  }
+  @media (min-width: 460px) { .board { gap: 10px; padding: 14px; } }
+
+  .ball {
+    position: relative; aspect-ratio: 1 / 1; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: var(--ball-white); color: var(--ink); font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+    font-size: clamp(12px, 3.4vw, 17px); border: none;
+    box-shadow: inset 0 -3px 6px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.35);
+    user-select: none; padding: 0; transition: background-color 0.12s ease, color 0.12s ease, transform 0.08s ease;
+  }
+  .ball:active { transform: scale(0.9); }
+  .ball .count-badge {
+    position: absolute; bottom: -3px; right: -3px; min-width: 16px; height: 16px; padding: 0 3px;
+    background: var(--gold); color: var(--felt-dark); border-radius: 999px; font-size: 9px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  }
+
+  footer { text-align: center; font-size: 11px; color: rgba(244,237,228,0.4); padding: 14px 4px 4px; }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
+  .modal-overlay.open { display: flex; }
+  .modal-box { background: var(--felt-dark); border: 1px solid var(--gold); border-radius: 16px; padding: 20px; max-width: 420px; width: 100%; max-height: 85vh; overflow-y: auto; }
+  .modal-box h2 { font-family: 'Space Grotesk', sans-serif; color: var(--gold-soft); margin: 0 0 6px; font-size: 18px; }
+  .modal-box p.hint { font-size: 12px; color: rgba(244,237,228,0.55); margin: 0 0 14px; }
   .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
   .btn-cancel { background: transparent; color: rgba(244,237,228,0.7); border: 1px solid rgba(244,237,228,0.3); }
   .btn-save { background: var(--gold); color: var(--felt-dark); font-weight: 700; }
 
-  /* History view */
   .view { display: none; }
   .view.active { display: block; }
   .history-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
   .history-toolbar span { font-size: 12px; color: rgba(244,237,228,0.6); }
-  .session-card {
-    background: rgba(0,0,0,0.2);
-    border: 1px solid rgba(212,175,55,0.25);
-    border-radius: 14px;
-    padding: 12px 14px;
-    margin-bottom: 10px;
-  }
-  .session-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    cursor: pointer;
-    gap: 8px;
-  }
-  .session-card h3 {
-    margin: 0;
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 15px;
-    color: var(--gold-soft);
-  }
+  .session-card { background: rgba(0,0,0,0.2); border: 1px solid rgba(212,175,55,0.25); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; }
+  .session-card-header { display: flex; justify-content: space-between; align-items: flex-start; cursor: pointer; gap: 8px; }
+  .session-card h3 { margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 15px; color: var(--gold-soft); }
   .session-meta { font-size: 11px; color: rgba(244,237,228,0.55); margin-top: 3px; }
-  .session-card .del-btn {
-    background: transparent;
-    color: rgba(181,68,59,0.85);
-    border: none;
-    font-size: 16px;
-    padding: 0 4px;
-  }
+  .session-card .del-btn { background: transparent; color: rgba(181,68,59,0.85); border: none; font-size: 16px; padding: 0 4px; }
   .session-details { margin-top: 10px; display: none; }
   .session-details.open { display: block; }
-  .game-entry {
-    font-size: 12.5px;
-    padding: 6px 0;
-    border-top: 1px solid rgba(212,175,55,0.15);
-    color: rgba(244,237,228,0.85);
-  }
-  .mini-board {
-    display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    gap: 3px;
-    margin-top: 10px;
-  }
+  .game-entry { font-size: 12.5px; padding: 6px 0; border-top: 1px solid rgba(212,175,55,0.15); color: rgba(244,237,228,0.85); }
+
+  .mini-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin-top: 10px; }
   .mini-ball {
-    aspect-ratio: 1/1;
-    border-radius: 50%;
-    font-size: 7px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #142019;
-    font-weight: 700;
-    background: #fff;
+    position: relative; aspect-ratio: 1/1; border-radius: 50%; font-size: 8px; display: flex; align-items: center;
+    justify-content: center; color: #142019; font-weight: 700; background: #fff;
+  }
+  .mini-badge {
+    position: absolute; bottom: -3px; right: -3px; min-width: 11px; height: 11px; padding: 0 2px;
+    background: var(--gold); color: var(--felt-dark); border-radius: 999px; font-size: 6.5px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 1px rgba(0,0,0,0.4); line-height: 1;
   }
   .no-history { text-align: center; color: rgba(244,237,228,0.5); font-size: 13px; padding: 30px 10px; }
 
   .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--gold);
-    color: var(--felt-dark);
-    padding: 10px 18px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 600;
-    opacity: 0;
-    transition: opacity 0.25s ease, transform 0.25s ease;
-    z-index: 200;
-    pointer-events: none;
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--gold); color: var(--felt-dark); padding: 10px 18px; border-radius: 999px;
+    font-size: 13px; font-weight: 600; opacity: 0; transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 200; pointer-events: none;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
@@ -426,21 +221,82 @@
 
   <!-- MAIN BOARD VIEW -->
   <div class="view active" id="boardView">
-    <div class="controls">
-      <div class="color-pick">
-        <label for="colorInput">Color</label>
-        <input type="color" id="colorInput" value="#B5443B">
-      </div>
-      <div class="btn-group">
-        <button class="btn-undo" id="undoBtn" disabled>Undo</button>
-        <button class="btn-reset" id="resetBtn">Clear board</button>
+
+    <div class="panel">
+      <div class="controls">
+        <div class="color-pick">
+          <label for="colorInput">Color</label>
+          <input type="color" id="colorInput" value="#B5443B">
+        </div>
+        <div class="btn-group">
+          <button class="btn-undo" id="undoBtn" disabled>Undo</button>
+          <button class="btn-reset" id="resetBtn">Clear board</button>
+        </div>
       </div>
     </div>
 
-    <div class="session-row">
-      <div class="games-count">Games logged this session: <b id="gamesCountLabel">0</b></div>
-      <div class="btn-group">
-        <button class="btn-log" id="logGameBtn">Log Game</button>
+    <div class="panel">
+      <div class="panel-title">Session start details</div>
+      <div class="field-row">
+        <div>
+          <label class="field-label" for="sessionStartDateInput">Date</label>
+          <input type="date" id="sessionStartDateInput">
+        </div>
+        <div>
+          <label class="field-label" for="sessionStartTimeInput">Starting time</label>
+          <input type="time" id="sessionStartTimeInput">
+        </div>
+      </div>
+      <div class="field-row">
+        <div>
+          <label class="field-label" for="sessionDayOfWeekInput">Day of week</label>
+          <select id="sessionDayOfWeekInput">
+            <option>Sunday</option><option>Monday</option><option>Tuesday</option>
+            <option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label" for="sessionMonthInput">Month</label>
+          <select id="sessionMonthInput">
+            <option>January</option><option>February</option><option>March</option><option>April</option>
+            <option>May</option><option>June</option><option>July</option><option>August</option>
+            <option>September</option><option>October</option><option>November</option><option>December</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Log a game</div>
+      <div class="field-row">
+        <div>
+          <label class="field-label" for="gameNumberInput">Game number</label>
+          <input type="text" id="gameNumberInput" placeholder="e.g. 1">
+        </div>
+      </div>
+      <label class="field-label">Multiplier</label>
+      <div class="chip-row" id="multiplierChipRow">
+        <button class="chip selected" data-val="None">None</button>
+        <button class="chip" data-val="2X">2X</button>
+        <button class="chip" data-val="3X">3X</button>
+        <button class="chip" data-val="4X">4X</button>
+        <button class="chip" data-val="5X">5X</button>
+        <button class="chip" data-val="8X">8X</button>
+        <button class="chip" data-val="10X">10X</button>
+        <button class="chip" data-val="20X">20X</button>
+        <button class="chip" data-val="custom">Custom&hellip;</button>
+      </div>
+      <input type="text" id="customMultiplierInput" placeholder="Custom multiplier (e.g. 6X)" style="display:none;">
+
+      <div class="field-label">Numbers hit this game</div>
+      <div class="hit-preview" id="hitPreview">None yet — tap the numbers drawn this game.</div>
+
+      <button class="btn-log" id="logGameBtn">Log Game</button>
+    </div>
+
+    <div class="panel">
+      <div class="controls">
+        <div class="games-count">Games logged this session: <b id="gamesCountLabel">0</b></div>
         <button class="btn-session" id="logSessionBtn">Log Session</button>
       </div>
     </div>
@@ -452,7 +308,7 @@
 
     <div class="board" id="board"></div>
 
-    <footer>Counts and color save automatically on this device.</footer>
+    <footer>Counts, session info, and color save automatically on this device.</footer>
   </div>
 
   <!-- HISTORY VIEW -->
@@ -465,79 +321,20 @@
   </div>
 </div>
 
-<!-- LOG GAME MODAL -->
-<div class="modal-overlay" id="gameModalOverlay">
-  <div class="modal-box">
-    <h2>Log Game</h2>
-    <label class="field-label" for="gameNumberInput">Game number</label>
-    <input type="text" id="gameNumberInput" placeholder="e.g. 1">
-
-    <label class="field-label">Multiplier</label>
-    <div class="chip-row" id="multiplierChipRow">
-      <button class="chip selected" data-val="None">None</button>
-      <button class="chip" data-val="2X">2X</button>
-      <button class="chip" data-val="3X">3X</button>
-      <button class="chip" data-val="4X">4X</button>
-      <button class="chip" data-val="5X">5X</button>
-      <button class="chip" data-val="8X">8X</button>
-      <button class="chip" data-val="10X">10X</button>
-      <button class="chip" data-val="20X">20X</button>
-      <button class="chip" data-val="custom">Custom&hellip;</button>
-    </div>
-    <input type="text" id="customMultiplierInput" placeholder="Custom multiplier (e.g. 6X)" style="display:none;">
-
-    <div class="field-label">Numbers hit this game</div>
-    <div class="hit-preview" id="hitPreview">None yet — tap the numbers drawn this game.</div>
-
-    <div class="modal-actions">
-      <button class="btn-cancel" id="gameModalCancel">Cancel</button>
-      <button class="btn-save" id="gameModalSave">Save Game</button>
-    </div>
-  </div>
-</div>
-
-<!-- LOG SESSION MODAL -->
+<!-- LOG SESSION MODAL (end time only — start details are set on the board page) -->
 <div class="modal-overlay" id="sessionModalOverlay">
   <div class="modal-box">
     <h2>Log Session</h2>
+    <p class="hint">Start details were set on the board page. Just confirm when this session ended.</p>
 
     <div class="field-row">
       <div>
-        <label class="field-label" for="startDateInput">Start date</label>
-        <input type="date" id="startDateInput">
+        <label class="field-label" for="sessionEndDateInput">End date</label>
+        <input type="date" id="sessionEndDateInput">
       </div>
       <div>
-        <label class="field-label" for="startTimeInput">Start time</label>
-        <input type="time" id="startTimeInput">
-      </div>
-    </div>
-
-    <div class="field-row">
-      <div>
-        <label class="field-label" for="endDateInput">End date</label>
-        <input type="date" id="endDateInput">
-      </div>
-      <div>
-        <label class="field-label" for="endTimeInput">End time</label>
-        <input type="time" id="endTimeInput">
-      </div>
-    </div>
-
-    <div class="field-row">
-      <div>
-        <label class="field-label" for="dayOfWeekInput">Day of week</label>
-        <select id="dayOfWeekInput">
-          <option>Sunday</option><option>Monday</option><option>Tuesday</option>
-          <option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option>
-        </select>
-      </div>
-      <div>
-        <label class="field-label" for="monthInput">Month</label>
-        <select id="monthInput">
-          <option>January</option><option>February</option><option>March</option><option>April</option>
-          <option>May</option><option>June</option><option>July</option><option>August</option>
-          <option>September</option><option>October</option><option>November</option><option>December</option>
-        </select>
+        <label class="field-label" for="sessionEndTimeInput">End time</label>
+        <input type="time" id="sessionEndTimeInput">
       </div>
     </div>
 
@@ -552,7 +349,7 @@
 
 <script>
 (function () {
-  const STORAGE_KEY = 'kenoTrackerState_v2';
+  const STORAGE_KEY = 'kenoTrackerState_v3';
   const HISTORY_KEY = 'kenoSessionHistory_v1';
   const NUM_COUNT = 80;
   const MAX_LEVEL = 8;
@@ -564,10 +361,14 @@
   let gameTapCounts = new Array(NUM_COUNT + 1).fill(0); // taps since last Log Game
   let tapHistory = [];                                   // undo stack of number indices
   let sessionGames = [];                                 // logged games this session
-  let sessionStart = null;                               // ISO timestamp, set on first tap of a fresh session
   let color = '#B5443B';
   let selectedMultiplier = 'None';
   let sessionHistoryData = [];
+
+  let sessionStartDate = '';
+  let sessionStartTime = '';
+  let sessionDayOfWeek = DAYS[0];
+  let sessionMonth = MONTHS[0];
 
   // ---- elements ----
   const boardEl = document.getElementById('board');
@@ -579,21 +380,19 @@
   const logGameBtn = document.getElementById('logGameBtn');
   const logSessionBtn = document.getElementById('logSessionBtn');
 
-  const gameModalOverlay = document.getElementById('gameModalOverlay');
   const gameNumberInput = document.getElementById('gameNumberInput');
   const multiplierChipRow = document.getElementById('multiplierChipRow');
   const customMultiplierInput = document.getElementById('customMultiplierInput');
   const hitPreview = document.getElementById('hitPreview');
-  const gameModalCancel = document.getElementById('gameModalCancel');
-  const gameModalSave = document.getElementById('gameModalSave');
+
+  const sessionStartDateInput = document.getElementById('sessionStartDateInput');
+  const sessionStartTimeInput = document.getElementById('sessionStartTimeInput');
+  const sessionDayOfWeekInput = document.getElementById('sessionDayOfWeekInput');
+  const sessionMonthInput = document.getElementById('sessionMonthInput');
 
   const sessionModalOverlay = document.getElementById('sessionModalOverlay');
-  const startDateInput = document.getElementById('startDateInput');
-  const startTimeInput = document.getElementById('startTimeInput');
-  const endDateInput = document.getElementById('endDateInput');
-  const endTimeInput = document.getElementById('endTimeInput');
-  const dayOfWeekInput = document.getElementById('dayOfWeekInput');
-  const monthInput = document.getElementById('monthInput');
+  const sessionEndDateInput = document.getElementById('sessionEndDateInput');
+  const sessionEndTimeInput = document.getElementById('sessionEndTimeInput');
   const sessionModalCancel = document.getElementById('sessionModalCancel');
   const sessionModalSave = document.getElementById('sessionModalSave');
 
@@ -616,7 +415,10 @@
         if (Array.isArray(data.gameTapCounts) && data.gameTapCounts.length === NUM_COUNT + 1) gameTapCounts = data.gameTapCounts;
         if (typeof data.color === 'string') color = data.color;
         if (Array.isArray(data.sessionGames)) sessionGames = data.sessionGames;
-        if (typeof data.sessionStart === 'string' || data.sessionStart === null) sessionStart = data.sessionStart;
+        if (typeof data.sessionStartDate === 'string') sessionStartDate = data.sessionStartDate;
+        if (typeof data.sessionStartTime === 'string') sessionStartTime = data.sessionStartTime;
+        if (typeof data.sessionDayOfWeek === 'string') sessionDayOfWeek = data.sessionDayOfWeek;
+        if (typeof data.sessionMonth === 'string') sessionMonth = data.sessionMonth;
       }
     } catch (e) { /* ignore corrupt state */ }
     try {
@@ -627,7 +429,10 @@
 
   function saveState() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ counts, gameTapCounts, color, sessionGames, sessionStart }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        counts, gameTapCounts, color, sessionGames,
+        sessionStartDate, sessionStartTime, sessionDayOfWeek, sessionMonth
+      }));
     } catch (e) { /* storage unavailable */ }
   }
 
@@ -667,6 +472,24 @@
     return { day: DAYS[d.getDay()], month: MONTHS[d.getMonth()] };
   }
 
+  function ensureSessionDefaults() {
+    if (!sessionStartDate) {
+      const now = new Date();
+      sessionStartDate = localDateStr(now);
+      sessionStartTime = localTimeStr(now);
+      const dm = dayMonthFromDateStr(sessionStartDate);
+      sessionDayOfWeek = dm.day;
+      sessionMonth = dm.month;
+    }
+  }
+
+  function syncSessionInfoInputs() {
+    sessionStartDateInput.value = sessionStartDate;
+    sessionStartTimeInput.value = sessionStartTime;
+    sessionDayOfWeekInput.value = sessionDayOfWeek;
+    sessionMonthInput.value = sessionMonth;
+  }
+
   // ---- board render ----
   function render() {
     for (let n = 1; n <= NUM_COUNT; n++) {
@@ -682,6 +505,7 @@
     undoBtn.disabled = tapHistory.length === 0;
     gamesCountLabel.textContent = sessionGames.length;
     renderGamesList();
+    renderHitPreview();
   }
 
   function buildBoard() {
@@ -700,7 +524,7 @@
   }
 
   function tapNumber(n) {
-    if (!sessionStart) sessionStart = new Date().toISOString();
+    ensureSessionDefaults();
     counts[n] += 1;
     gameTapCounts[n] += 1;
     tapHistory.push(n);
@@ -723,9 +547,22 @@
     gameTapCounts = new Array(NUM_COUNT + 1).fill(0);
     tapHistory = [];
     sessionGames = [];
-    sessionStart = null;
+    sessionStartDate = ''; sessionStartTime = ''; sessionDayOfWeek = DAYS[0]; sessionMonth = MONTHS[0];
+    ensureSessionDefaults();
+    syncSessionInfoInputs();
     saveState();
     render();
+  }
+
+  // ---- hit preview (live, updates as user taps) ----
+  function renderHitPreview() {
+    const hitNumbers = [];
+    for (let n = 1; n <= NUM_COUNT; n++) if (gameTapCounts[n] > 0) hitNumbers.push({ number: n, hits: gameTapCounts[n] });
+    if (hitNumbers.length === 0) {
+      hitPreview.textContent = 'None yet — tap the numbers drawn this game.';
+    } else {
+      hitPreview.textContent = hitNumbers.map(x => x.number + (x.hits > 1 ? ' (\u00d7' + x.hits + ')' : '')).join(', ');
+    }
   }
 
   // ---- games list (current session) ----
@@ -762,25 +599,7 @@
     return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
   }
 
-  // ---- Log Game modal ----
-  function openGameModal() {
-    gameNumberInput.value = String(sessionGames.length + 1);
-    selectedMultiplier = 'None';
-    [...multiplierChipRow.children].forEach(c => c.classList.toggle('selected', c.dataset.val === 'None'));
-    customMultiplierInput.style.display = 'none';
-    customMultiplierInput.value = '';
-
-    const hitNumbers = [];
-    for (let n = 1; n <= NUM_COUNT; n++) if (gameTapCounts[n] > 0) hitNumbers.push({ number: n, hits: gameTapCounts[n] });
-    if (hitNumbers.length === 0) {
-      hitPreview.textContent = 'None yet — tap the numbers drawn this game.';
-    } else {
-      hitPreview.textContent = hitNumbers.map(x => x.number + (x.hits > 1 ? ' (\u00d7' + x.hits + ')' : '')).join(', ');
-    }
-    gameModalOverlay.classList.add('open');
-  }
-  function closeGameModal() { gameModalOverlay.classList.remove('open'); }
-
+  // ---- multiplier chip selection ----
   multiplierChipRow.addEventListener('click', (e) => {
     const chip = e.target.closest('.chip');
     if (!chip) return;
@@ -791,13 +610,22 @@
     if (selectedMultiplier === 'custom') customMultiplierInput.focus();
   });
 
+  function resetMultiplierChips() {
+    selectedMultiplier = 'None';
+    [...multiplierChipRow.children].forEach(c => c.classList.toggle('selected', c.dataset.val === 'None'));
+    customMultiplierInput.style.display = 'none';
+    customMultiplierInput.value = '';
+  }
+
+  // ---- Log Game (inline, no modal) ----
   function saveGame() {
+    ensureSessionDefaults();
     const gameNumber = gameNumberInput.value.trim();
-    if (!gameNumber) { alert('Please enter a game number.'); return; }
+    if (!gameNumber) { alert('Please enter a game number.'); gameNumberInput.focus(); return; }
     let multiplier = selectedMultiplier;
     if (multiplier === 'custom') {
       const custom = customMultiplierInput.value.trim();
-      if (!custom) { alert('Please enter a custom multiplier, or pick a preset.'); return; }
+      if (!custom) { alert('Please enter a custom multiplier, or pick a preset.'); customMultiplierInput.focus(); return; }
       multiplier = custom;
     }
     const numbers = [];
@@ -808,49 +636,49 @@
     tapHistory = [];
     saveState();
     render();
-    closeGameModal();
+    gameNumberInput.value = String(sessionGames.length + 1);
+    resetMultiplierChips();
     showToast('Game ' + gameNumber + ' logged');
   }
 
-  logGameBtn.addEventListener('click', openGameModal);
-  gameModalCancel.addEventListener('click', closeGameModal);
-  gameModalSave.addEventListener('click', saveGame);
-  gameModalOverlay.addEventListener('click', (e) => { if (e.target === gameModalOverlay) closeGameModal(); });
+  logGameBtn.addEventListener('click', saveGame);
 
-  // ---- Log Session modal ----
+  // ---- session start detail inputs ----
+  sessionStartDateInput.addEventListener('change', () => {
+    sessionStartDate = sessionStartDateInput.value;
+    const dm = dayMonthFromDateStr(sessionStartDate);
+    sessionDayOfWeek = dm.day;
+    sessionMonth = dm.month;
+    sessionDayOfWeekInput.value = sessionDayOfWeek;
+    sessionMonthInput.value = sessionMonth;
+    saveState();
+  });
+  sessionStartTimeInput.addEventListener('change', () => { sessionStartTime = sessionStartTimeInput.value; saveState(); });
+  sessionDayOfWeekInput.addEventListener('change', () => { sessionDayOfWeek = sessionDayOfWeekInput.value; saveState(); });
+  sessionMonthInput.addEventListener('change', () => { sessionMonth = sessionMonthInput.value; saveState(); });
+
+  // ---- Log Session modal (end time only) ----
   function openSessionModal() {
-    const startD = sessionStart ? new Date(sessionStart) : new Date();
     const now = new Date();
-    startDateInput.value = localDateStr(startD);
-    startTimeInput.value = localTimeStr(startD);
-    endDateInput.value = localDateStr(now);
-    endTimeInput.value = localTimeStr(now);
-    const dm = dayMonthFromDateStr(startDateInput.value);
-    dayOfWeekInput.value = dm.day;
-    monthInput.value = dm.month;
+    sessionEndDateInput.value = localDateStr(now);
+    sessionEndTimeInput.value = localTimeStr(now);
     sessionModalOverlay.classList.add('open');
   }
   function closeSessionModal() { sessionModalOverlay.classList.remove('open'); }
 
-  startDateInput.addEventListener('change', () => {
-    const dm = dayMonthFromDateStr(startDateInput.value);
-    dayOfWeekInput.value = dm.day;
-    monthInput.value = dm.month;
-  });
-
   function saveSessionAndClear() {
-    if (!startDateInput.value || !endDateInput.value) { alert('Please set a start and end date.'); return; }
+    if (!sessionEndDateInput.value) { alert('Please set an end date.'); return; }
     const nonzero = {};
     for (let n = 1; n <= NUM_COUNT; n++) if (counts[n] > 0) nonzero[n] = counts[n];
 
     const record = {
       id: Date.now(),
-      startDate: startDateInput.value,
-      startTime: startTimeInput.value,
-      endDate: endDateInput.value,
-      endTime: endTimeInput.value,
-      dayOfWeek: dayOfWeekInput.value,
-      month: monthInput.value,
+      startDate: sessionStartDate,
+      startTime: sessionStartTime,
+      endDate: sessionEndDateInput.value,
+      endTime: sessionEndTimeInput.value,
+      dayOfWeek: sessionDayOfWeek,
+      month: sessionMonth,
       color: color,
       games: sessionGames,
       counts: nonzero,
@@ -863,7 +691,11 @@
     gameTapCounts = new Array(NUM_COUNT + 1).fill(0);
     tapHistory = [];
     sessionGames = [];
-    sessionStart = null;
+    sessionStartDate = ''; sessionStartTime = ''; sessionDayOfWeek = DAYS[0]; sessionMonth = MONTHS[0];
+    ensureSessionDefaults();
+    syncSessionInfoInputs();
+    gameNumberInput.value = '1';
+    resetMultiplierChips();
     saveState();
     render();
     closeSessionModal();
@@ -942,15 +774,28 @@
         });
       }
 
+      const miniLabel = document.createElement('div');
+      miniLabel.className = 'field-label';
+      miniLabel.style.marginTop = '10px';
+      miniLabel.textContent = 'Board results (times logged)';
+      details.appendChild(miniLabel);
+
       const mini = document.createElement('div');
       mini.className = 'mini-board';
       for (let n = 1; n <= NUM_COUNT; n++) {
         const c = (rec.counts && rec.counts[n]) ? rec.counts[n] : 0;
-        const { bg } = colorForCount(c, rec.color || '#B5443B');
+        const { bg, text } = colorForCount(c, rec.color || '#B5443B');
         const b = document.createElement('div');
         b.className = 'mini-ball';
         b.style.backgroundColor = `rgb(${bg[0]}, ${bg[1]}, ${bg[2]})`;
+        b.style.color = text;
         b.textContent = n;
+        if (c > 0) {
+          const badge = document.createElement('span');
+          badge.className = 'mini-badge';
+          badge.textContent = c;
+          b.appendChild(badge);
+        }
         mini.appendChild(b);
       }
       details.appendChild(mini);
@@ -985,7 +830,10 @@
 
   // ---- init ----
   loadState();
+  ensureSessionDefaults();
+  syncSessionInfoInputs();
   colorInput.value = color;
+  gameNumberInput.value = String(sessionGames.length + 1);
   buildBoard();
   render();
 })();
