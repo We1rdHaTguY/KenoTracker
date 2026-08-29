@@ -217,6 +217,14 @@
   .combo-numbers { flex: 1; color: var(--gold-soft); font-family: 'Space Grotesk', sans-serif; font-weight: 700; }
   .combo-score { color: rgba(244,237,228,0.85); flex-shrink: 0; }
 
+  .ocr-mini-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; margin-bottom: 10px; }
+  .ocr-num-btn {
+    aspect-ratio: 1/1; border-radius: 50%; background: rgba(255,255,255,0.08); color: var(--cream);
+    border: 1px solid rgba(212,175,55,0.35); font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+    font-size: 11px; display: flex; align-items: center; justify-content: center; padding: 0;
+  }
+  .ocr-num-btn.selected { background: var(--gold); color: var(--felt-dark); border-color: var(--gold); }
+
   .mini-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin-top: 10px; }
   .mini-ball {
     position: relative; aspect-ratio: 1/1; border-radius: 50%; font-size: 8px; display: flex; align-items: center;
@@ -297,6 +305,11 @@
 
     <div class="panel">
       <div class="panel-title">Log a game</div>
+
+      <button class="btn-session" id="uploadScreenshotBtn" style="width:100%; margin-bottom:6px;">Scan Screenshot</button>
+      <input type="file" id="screenshotFileInput" accept="image/*" style="display:none;">
+      <p style="font-size:11px; color:rgba(244,237,228,0.5); margin:0 0 12px;">Beta: reads the game number, bonus, and numbers from a results screenshot. Always double-check the results before saving.</p>
+
       <div class="field-row">
         <div>
           <label class="field-label" for="gameNumberInput">Game number</label>
@@ -360,6 +373,40 @@
       <button class="btn-reset" id="clearHistoryBtn">Clear all history</button>
     </div>
     <div id="historyList"></div>
+  </div>
+</div>
+
+<!-- SCANNED SCREENSHOT REVIEW MODAL -->
+<div class="modal-overlay" id="ocrModalOverlay">
+  <div class="modal-box">
+    <h2>Review Scanned Game</h2>
+    <p class="hint">We did our best to read the screenshot. Please check the game number, multiplier, and numbers below and fix anything that's wrong before using these results.</p>
+
+    <label class="field-label" for="ocrGameNumberInput">Game number</label>
+    <input type="text" id="ocrGameNumberInput" placeholder="e.g. 1">
+
+    <label class="field-label">Multiplier</label>
+    <div class="chip-row" id="ocrMultiplierChipRow">
+      <button class="chip selected" data-val="None">None</button>
+      <button class="chip" data-val="2X">2X</button>
+      <button class="chip" data-val="3X">3X</button>
+      <button class="chip" data-val="4X">4X</button>
+      <button class="chip" data-val="5X">5X</button>
+      <button class="chip" data-val="8X">8X</button>
+      <button class="chip" data-val="10X">10X</button>
+      <button class="chip" data-val="20X">20X</button>
+      <button class="chip" data-val="custom">Custom&hellip;</button>
+    </div>
+    <input type="text" id="ocrCustomMultiplierInput" placeholder="Custom multiplier (e.g. 6X)" style="display:none;">
+
+    <label class="field-label">Detected numbers (tap to fix, max 20)</label>
+    <div class="ocr-mini-board" id="ocrMiniBoard"></div>
+    <div class="hit-preview" id="ocrCountPreview">0 numbers selected</div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" id="ocrModalCancel">Cancel</button>
+      <button class="btn-save" id="ocrModalUse">Use These Results</button>
+    </div>
   </div>
 </div>
 
@@ -428,6 +475,17 @@
   const multiplierChipRow = document.getElementById('multiplierChipRow');
   const customMultiplierInput = document.getElementById('customMultiplierInput');
   const hitPreview = document.getElementById('hitPreview');
+
+  const uploadScreenshotBtn = document.getElementById('uploadScreenshotBtn');
+  const screenshotFileInput = document.getElementById('screenshotFileInput');
+  const ocrModalOverlay = document.getElementById('ocrModalOverlay');
+  const ocrGameNumberInput = document.getElementById('ocrGameNumberInput');
+  const ocrMultiplierChipRow = document.getElementById('ocrMultiplierChipRow');
+  const ocrCustomMultiplierInput = document.getElementById('ocrCustomMultiplierInput');
+  const ocrMiniBoard = document.getElementById('ocrMiniBoard');
+  const ocrCountPreview = document.getElementById('ocrCountPreview');
+  const ocrModalCancel = document.getElementById('ocrModalCancel');
+  const ocrModalUse = document.getElementById('ocrModalUse');
 
   const sessionStartDateInput = document.getElementById('sessionStartDateInput');
   const sessionStartTimeInput = document.getElementById('sessionStartTimeInput');
@@ -714,6 +772,217 @@
   }
 
   logGameBtn.addEventListener('click', saveGame);
+
+  // ---- screenshot scan (OCR) ----
+  const KNOWN_MULTIPLIERS = ['None', '2X', '3X', '4X', '5X', '8X', '10X', '20X'];
+  let tesseractLoadingPromise = null;
+
+  function loadTesseract() {
+    if (window.Tesseract) return Promise.resolve();
+    if (tesseractLoadingPromise) return tesseractLoadingPromise;
+    tesseractLoadingPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+      script.onload = () => resolve();
+      script.onerror = () => { tesseractLoadingPromise = null; reject(new Error('Failed to load OCR library')); };
+      document.head.appendChild(script);
+    });
+    return tesseractLoadingPromise;
+  }
+
+  function parseOcrText(text) {
+    const result = { gameNumber: '', multiplier: '', numbers: [] };
+    let scanText = text;
+
+    const gameMatch = text.match(/(?:game|draw)\s*(?:no\.?|number|#)?\s*[:#\-]?\s*(\d{1,6})/i);
+    if (gameMatch) {
+      result.gameNumber = gameMatch[1];
+      scanText = scanText.replace(gameMatch[0], ' ');
+    }
+
+    const multiPatterns = [
+      /(\d{1,3})\s*x\b[^\n\r]{0,15}(?:bonus|multiplier|kicker)/i,
+      /(?:bonus|multiplier|kicker)[^\n\r]{0,15}(\d{1,3})\s*x\b/i,
+      /(?:bonus|multiplier|kicker)[^\n\r]{0,15}x\s*(\d{1,3})\b/i,
+      /\b(\d{1,3})\s*x\b/i,
+      /\bx\s*(\d{1,3})\b/i
+    ];
+    let multiMatch = null;
+    for (const p of multiPatterns) { multiMatch = text.match(p); if (multiMatch) break; }
+    if (multiMatch) {
+      result.multiplier = multiMatch[1] + 'X';
+      scanText = scanText.replace(multiMatch[0], ' ');
+    }
+
+    const tokens = scanText.match(/\b\d{1,2}\b/g) || [];
+    const seen = new Set();
+    tokens.forEach(t => {
+      const n = parseInt(t, 10);
+      if (n >= 1 && n <= 80 && !seen.has(n)) { seen.add(n); result.numbers.push(n); }
+    });
+    result.numbers = result.numbers.slice(0, MAX_NUMBERS_PER_GAME);
+
+    return result;
+  }
+
+  uploadScreenshotBtn.addEventListener('click', () => screenshotFileInput.click());
+
+  screenshotFileInput.addEventListener('change', async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const originalLabel = uploadScreenshotBtn.textContent;
+    uploadScreenshotBtn.disabled = true;
+
+    try {
+      uploadScreenshotBtn.textContent = 'Loading OCR engine\u2026';
+      await loadTesseract();
+    } catch (err) {
+      alert('Could not load the OCR engine. Check your internet connection and try again.');
+      uploadScreenshotBtn.disabled = false;
+      uploadScreenshotBtn.textContent = originalLabel;
+      screenshotFileInput.value = '';
+      return;
+    }
+
+    try {
+      uploadScreenshotBtn.textContent = 'Reading screenshot\u2026';
+      const { data: { text } } = await Tesseract.recognize(file, 'eng', {
+        logger: (m) => {
+          if (m.status === 'recognizing text' && typeof m.progress === 'number') {
+            uploadScreenshotBtn.textContent = 'Reading screenshot\u2026 ' + Math.round(m.progress * 100) + '%';
+          }
+        }
+      });
+      const parsed = parseOcrText(text);
+      openOcrModal(parsed);
+    } catch (err) {
+      alert('Could not read that image. Try a clearer or higher-resolution screenshot.');
+    } finally {
+      uploadScreenshotBtn.disabled = false;
+      uploadScreenshotBtn.textContent = originalLabel;
+      screenshotFileInput.value = '';
+    }
+  });
+
+  let ocrSelected = new Array(NUM_COUNT + 1).fill(false);
+  let ocrSelectedMultiplier = 'None';
+
+  function buildOcrMiniBoard() {
+    ocrMiniBoard.innerHTML = '';
+    for (let n = 1; n <= NUM_COUNT; n++) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ocr-num-btn';
+      btn.textContent = n;
+      btn.addEventListener('click', () => {
+        ocrSelected[n] = !ocrSelected[n];
+        btn.classList.toggle('selected', ocrSelected[n]);
+        updateOcrCountPreview();
+      });
+      ocrMiniBoard.appendChild(btn);
+    }
+  }
+  buildOcrMiniBoard();
+
+  function updateOcrCountPreview() {
+    const count = ocrSelected.filter(Boolean).length;
+    let msg = count + (count === 1 ? ' number selected' : ' numbers selected');
+    if (count > MAX_NUMBERS_PER_GAME) msg += ' \u2014 over the ' + MAX_NUMBERS_PER_GAME + ' limit, deselect some to continue';
+    ocrCountPreview.textContent = msg;
+  }
+
+  function setOcrMultiplierChip(val) {
+    ocrSelectedMultiplier = val;
+    [...ocrMultiplierChipRow.children].forEach(c => c.classList.toggle('selected', c.dataset.val === val));
+    ocrCustomMultiplierInput.style.display = val === 'custom' ? 'block' : 'none';
+  }
+
+  function openOcrModal(parsed) {
+    ocrGameNumberInput.value = parsed.gameNumber || String(sessionGames.length + 1);
+    ocrCustomMultiplierInput.value = '';
+    if (parsed.multiplier && KNOWN_MULTIPLIERS.includes(parsed.multiplier)) {
+      setOcrMultiplierChip(parsed.multiplier);
+    } else if (parsed.multiplier) {
+      setOcrMultiplierChip('custom');
+      ocrCustomMultiplierInput.value = parsed.multiplier;
+    } else {
+      setOcrMultiplierChip('None');
+    }
+
+    ocrSelected = new Array(NUM_COUNT + 1).fill(false);
+    parsed.numbers.forEach(n => { ocrSelected[n] = true; });
+    [...ocrMiniBoard.children].forEach((btn, idx) => {
+      const n = idx + 1;
+      btn.classList.toggle('selected', ocrSelected[n]);
+    });
+    updateOcrCountPreview();
+
+    ocrModalOverlay.classList.add('open');
+  }
+  function closeOcrModal() { ocrModalOverlay.classList.remove('open'); }
+
+  ocrMultiplierChipRow.addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    setOcrMultiplierChip(chip.dataset.val);
+    if (chip.dataset.val === 'custom') ocrCustomMultiplierInput.focus();
+  });
+
+  ocrModalCancel.addEventListener('click', closeOcrModal);
+  ocrModalOverlay.addEventListener('click', (e) => { if (e.target === ocrModalOverlay) closeOcrModal(); });
+
+  ocrModalUse.addEventListener('click', () => {
+    const selectedNumbers = [];
+    for (let n = 1; n <= NUM_COUNT; n++) if (ocrSelected[n]) selectedNumbers.push(n);
+    if (selectedNumbers.length === 0) { alert('Select at least one number before continuing.'); return; }
+    if (selectedNumbers.length > MAX_NUMBERS_PER_GAME) { alert('You can only use up to ' + MAX_NUMBERS_PER_GAME + ' numbers. Deselect some first.'); return; }
+
+    let multiplier = ocrSelectedMultiplier;
+    if (multiplier === 'custom') {
+      const custom = ocrCustomMultiplierInput.value.trim();
+      if (!custom) { alert('Enter a custom multiplier, or pick a preset.'); return; }
+      multiplier = custom;
+    }
+    const gameNum = ocrGameNumberInput.value.trim();
+    if (!gameNum) { alert('Enter a game number.'); return; }
+
+    applyScannedGame(gameNum, multiplier, selectedNumbers);
+    closeOcrModal();
+  });
+
+  function applyScannedGame(gameNum, multiplier, numbers) {
+    // clear any partial taps already made for the current, not-yet-logged game
+    for (let n = 1; n <= NUM_COUNT; n++) {
+      if (gameTapCounts[n] > 0) {
+        counts[n] = Math.max(0, counts[n] - 1);
+        gameTapCounts[n] = 0;
+      }
+    }
+    tapHistory = [];
+    ensureSessionDefaults();
+    numbers.forEach(n => {
+      counts[n] += 1;
+      gameTapCounts[n] = 1;
+      tapHistory.push(n);
+    });
+    saveState();
+    render();
+
+    gameNumberInput.value = gameNum;
+    if (KNOWN_MULTIPLIERS.includes(multiplier)) {
+      selectedMultiplier = multiplier;
+      [...multiplierChipRow.children].forEach(c => c.classList.toggle('selected', c.dataset.val === multiplier));
+      customMultiplierInput.style.display = 'none';
+      customMultiplierInput.value = '';
+    } else {
+      selectedMultiplier = 'custom';
+      [...multiplierChipRow.children].forEach(c => c.classList.toggle('selected', c.dataset.val === 'custom'));
+      customMultiplierInput.style.display = 'block';
+      customMultiplierInput.value = multiplier;
+    }
+
+    showToast('Scanned results loaded \u2014 review, then tap Log Game');
+  }
 
   // ---- session start detail inputs ----
   sessionStartDateInput.addEventListener('change', () => {
