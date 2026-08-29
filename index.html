@@ -137,10 +137,20 @@
   details.games-list { background: rgba(0,0,0,0.14); border: 1px solid rgba(212,175,55,0.18); border-radius: 12px; padding: 6px 12px; margin-bottom: 12px; font-size: 12px; }
   details.games-list summary { cursor: pointer; padding: 6px 0; color: rgba(244,237,228,0.75); font-weight: 500; list-style: none; }
   details.games-list summary::-webkit-details-marker { display: none; }
-  .game-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 7px 0; border-top: 1px solid rgba(212,175,55,0.15); }
-  .game-row .game-info { color: rgba(244,237,228,0.85); }
+  .game-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; padding: 7px 0; border-top: 1px solid rgba(212,175,55,0.15); }
+  .game-row .game-info { color: rgba(244,237,228,0.85); flex: 1; }
   .game-row .game-info .g-num { color: var(--gold-soft); font-weight: 700; }
-  .game-row .del-btn { background: transparent; color: rgba(181,68,59,0.85); border: none; padding: 2px 8px; font-size: 14px; }
+  .game-row .game-numbers { font-size: 11px; color: rgba(244,237,228,0.6); margin-top: 3px; line-height: 1.4; }
+  .game-row .del-btn { background: transparent; color: rgba(181,68,59,0.85); border: none; padding: 2px 8px; font-size: 14px; flex-shrink: 0; }
+
+  @keyframes shakeBall {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-4px); }
+    40% { transform: translateX(4px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(3px); }
+  }
+  .ball.shake { animation: shakeBall 0.3s ease; }
   .empty-note { color: rgba(244,237,228,0.45); font-size: 12px; padding: 6px 0; }
 
   .board {
@@ -186,6 +196,16 @@
   .session-details { margin-top: 10px; display: none; }
   .session-details.open { display: block; }
   .game-entry { font-size: 12.5px; padding: 6px 0; border-top: 1px solid rgba(212,175,55,0.15); color: rgba(244,237,228,0.85); }
+
+  .rank-list { margin-top: 8px; }
+  .rank-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px solid rgba(212,175,55,0.15); font-size: 13px; }
+  .rank-badge {
+    width: 20px; height: 20px; border-radius: 50%; background: var(--gold); color: var(--felt-dark);
+    display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 700; flex-shrink: 0;
+  }
+  .rank-number { font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: var(--gold-soft); width: 26px; flex-shrink: 0; }
+  .rank-score { margin-left: auto; color: rgba(244,237,228,0.85); text-align: right; }
+  .rank-sub { display: block; font-size: 10.5px; color: rgba(244,237,228,0.5); font-weight: 400; }
 
   .mini-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin-top: 10px; }
   .mini-ball {
@@ -301,7 +321,7 @@
       </div>
     </div>
 
-    <details class="games-list" id="gamesListWrap">
+    <details class="games-list" id="gamesListWrap" open>
       <summary>Games this session</summary>
       <div id="gamesListItems"><div class="empty-note">No games logged yet.</div></div>
     </details>
@@ -524,12 +544,26 @@
   }
 
   function tapNumber(n) {
+    if (gameTapCounts[n] >= 1) {
+      flashAlreadyLogged(n);
+      return;
+    }
     ensureSessionDefaults();
     counts[n] += 1;
-    gameTapCounts[n] += 1;
+    gameTapCounts[n] = 1;
     tapHistory.push(n);
     saveState();
     render();
+  }
+
+  function flashAlreadyLogged(n) {
+    const cell = boardEl.children[n - 1];
+    cell.classList.remove('shake');
+    // force reflow so the animation can replay if tapped again quickly
+    void cell.offsetWidth;
+    cell.classList.add('shake');
+    setTimeout(() => cell.classList.remove('shake'), 320);
+    showToast('Number ' + n + ' is already logged for this game');
   }
 
   function undo() {
@@ -575,15 +609,14 @@
     sessionGames.forEach((g, idx) => {
       const row = document.createElement('div');
       row.className = 'game-row';
-      const numbersStr = g.numbers.length ? g.numbers.map(x => x.number + (x.hits > 1 ? '(\u00d7' + x.hits + ')' : '')).join(', ') : 'none';
-      row.innerHTML = `<div class="game-info"><span class="g-num">#${escapeHtml(g.gameNumber)}</span> &middot; ${escapeHtml(g.multiplier)} &middot; ${g.numbers.length} numbers</div>`;
+      const numbersStr = g.numbers.length ? g.numbers.map(x => x.number).sort((a, b) => a - b).join(', ') : 'No numbers logged';
+      row.innerHTML = `<div class="game-info"><div><span class="g-num">#${escapeHtml(g.gameNumber)}</span> &middot; ${escapeHtml(g.multiplier)} &middot; ${g.numbers.length} numbers</div><div class="game-numbers">${escapeHtml(numbersStr)}</div></div>`;
       const del = document.createElement('button');
       del.className = 'del-btn';
       del.innerHTML = '&times;';
       del.title = 'Remove this logged game';
       del.addEventListener('click', (e) => { e.stopPropagation(); deleteGame(idx); });
       row.appendChild(del);
-      row.title = 'Numbers: ' + numbersStr;
       gamesListItems.appendChild(row);
     });
   }
@@ -774,6 +807,27 @@
         });
       }
 
+      const ranking = computeRanking(rec);
+      if (ranking.length) {
+        const rankLabel = document.createElement('div');
+        rankLabel.className = 'field-label';
+        rankLabel.style.marginTop = '10px';
+        rankLabel.textContent = 'Ranked numbers (frequency \u00d7 multiplier)';
+        details.appendChild(rankLabel);
+
+        const rankList = document.createElement('div');
+        rankList.className = 'rank-list';
+        ranking.forEach((r, i) => {
+          const row = document.createElement('div');
+          row.className = 'rank-row';
+          const gamesLabel = r.appearances + (r.appearances === 1 ? ' game' : ' games');
+          const weightedNote = r.score !== r.appearances ? ` \u00b7 weighted by multiplier` : '';
+          row.innerHTML = `<span class="rank-badge">${i + 1}</span><span class="rank-number">${r.number}</span><span class="rank-score">${r.score} pt${r.score !== 1 ? 's' : ''}<span class="rank-sub">${gamesLabel}${weightedNote}</span></span>`;
+          rankList.appendChild(row);
+        });
+        details.appendChild(rankList);
+      }
+
       const miniLabel = document.createElement('div');
       miniLabel.className = 'field-label';
       miniLabel.style.marginTop = '10px';
@@ -806,6 +860,30 @@
       card.appendChild(details);
       historyList.appendChild(card);
     });
+  }
+
+  function multiplierWeight(m) {
+    if (!m) return 1;
+    const s = String(m).trim();
+    if (s.toLowerCase() === 'none') return 1;
+    const match = s.match(/\d+/);
+    return match ? Math.max(1, parseInt(match[0], 10)) : 1;
+  }
+
+  function computeRanking(rec) {
+    const scores = {};
+    const appearances = {};
+    (rec.games || []).forEach(g => {
+      const w = multiplierWeight(g.multiplier);
+      (g.numbers || []).forEach(x => {
+        const n = x.number;
+        scores[n] = (scores[n] || 0) + w;
+        appearances[n] = (appearances[n] || 0) + 1;
+      });
+    });
+    return Object.keys(scores)
+      .map(n => ({ number: Number(n), score: scores[n], appearances: appearances[n] }))
+      .sort((a, b) => b.score - a.score || a.number - b.number);
   }
 
   function deleteSession(idx) {
