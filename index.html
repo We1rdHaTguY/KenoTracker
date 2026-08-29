@@ -209,6 +209,14 @@
   .rank-score { margin-left: auto; color: rgba(244,237,228,0.85); text-align: right; }
   .rank-sub { display: block; font-size: 10.5px; color: rgba(244,237,228,0.5); font-weight: 400; }
 
+  .combo-size-row { display: flex; align-items: center; gap: 8px; margin: 8px 0 4px; }
+  .combo-size-row label { font-size: 12px; color: rgba(244,237,228,0.7); white-space: nowrap; }
+  .combo-size-row select { width: auto; margin-bottom: 0; padding: 6px 10px; }
+  .combo-list { margin-top: 4px; }
+  .combo-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px solid rgba(212,175,55,0.15); font-size: 12.5px; }
+  .combo-numbers { flex: 1; color: var(--gold-soft); font-family: 'Space Grotesk', sans-serif; font-weight: 700; }
+  .combo-score { color: rgba(244,237,228,0.85); flex-shrink: 0; }
+
   .mini-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin-top: 10px; }
   .mini-ball {
     position: relative; aspect-ratio: 1/1; border-radius: 50%; font-size: 8px; display: flex; align-items: center;
@@ -375,6 +383,7 @@
 (function () {
   const STORAGE_KEY = 'kenoTrackerState_v3';
   const HISTORY_KEY = 'kenoSessionHistory_v1';
+  const COMBO_SIZE_KEY = 'kenoComboSizePref_v1';
   const NUM_COUNT = 80;
   const MAX_LEVEL = 8;
   const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -386,6 +395,7 @@
   let tapHistory = [];                                   // undo stack of number indices
   let sessionGames = [];                                 // logged games this session
   let color = '#B5443B';
+  let comboSize = 2;
   let selectedMultiplier = 'None';
   let sessionHistoryData = [];
 
@@ -844,6 +854,56 @@
         details.appendChild(rankList);
       }
 
+      const comboWrap = document.createElement('div');
+      comboWrap.style.marginTop = '14px';
+
+      const comboLabel = document.createElement('div');
+      comboLabel.className = 'field-label';
+      comboLabel.textContent = 'Top 10 combos';
+      comboWrap.appendChild(comboLabel);
+
+      const sizeRow = document.createElement('div');
+      sizeRow.className = 'combo-size-row';
+      const sizeLabelEl = document.createElement('label');
+      sizeLabelEl.textContent = 'Combo size';
+      const sizeSelect = document.createElement('select');
+      for (let s = 2; s <= 12; s++) {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s + (s === 1 ? ' number' : ' numbers');
+        sizeSelect.appendChild(opt);
+      }
+      sizeSelect.value = comboSize;
+      sizeRow.appendChild(sizeLabelEl);
+      sizeRow.appendChild(sizeSelect);
+      comboWrap.appendChild(sizeRow);
+
+      const comboListEl = document.createElement('div');
+      comboListEl.className = 'combo-list';
+      comboWrap.appendChild(comboListEl);
+
+      function renderCombos() {
+        const x = parseInt(sizeSelect.value, 10);
+        comboSize = x;
+        try { localStorage.setItem(COMBO_SIZE_KEY, String(x)); } catch (e) { /* ignore */ }
+        const combos = computeTopCombos(ranking, x);
+        comboListEl.innerHTML = '';
+        if (!combos) {
+          comboListEl.innerHTML = '<div class="empty-note">Not enough different numbers were logged this session to form a ' + x + '-number combo.</div>';
+          return;
+        }
+        combos.forEach((c, i) => {
+          const row = document.createElement('div');
+          row.className = 'combo-row';
+          row.innerHTML = `<span class="rank-badge">${i + 1}</span><span class="combo-numbers">${c.numbers.join(', ')}</span><span class="combo-score">${c.score} pt${c.score !== 1 ? 's' : ''}</span>`;
+          comboListEl.appendChild(row);
+        });
+      }
+      sizeSelect.addEventListener('change', renderCombos);
+      renderCombos();
+
+      details.appendChild(comboWrap);
+
       const rankMap = {};
       ranking.forEach((r, i) => { rankMap[r.number] = i + 1; });
 
@@ -905,6 +965,39 @@
       .sort((a, b) => b.score - a.score || a.number - b.number);
   }
 
+  // Generate all size-x combinations (as index-subsets, preserving input order) from a small array.
+  function generateCombinations(arr, x) {
+    const results = [];
+    const combo = [];
+    (function backtrack(start) {
+      if (combo.length === x) { results.push(combo.slice()); return; }
+      for (let i = start; i < arr.length; i++) {
+        combo.push(arr[i]);
+        backtrack(i + 1);
+        combo.pop();
+      }
+    })(0);
+    return results;
+  }
+
+  // A combo's total points = sum over every game of (numbers from the combo that hit that game) x that
+  // game's multiplier. Since that is linear in each member number, it reduces to the sum of each member's
+  // own weighted rank score (from computeRanking) — so we only need to search a bounded top-scoring pool
+  // (the top x+9 individual numbers) to guarantee the true top 10 combos, keeping this fast on a phone.
+  function computeTopCombos(ranking, x, topN) {
+    topN = topN || 10;
+    if (ranking.length < x) return null;
+    const poolSize = Math.min(ranking.length, x + topN - 1);
+    const pool = ranking.slice(0, poolSize);
+    const combos = generateCombinations(pool, x);
+    const scored = combos.map(c => ({
+      numbers: c.map(o => o.number).sort((a, b) => a - b),
+      score: c.reduce((s, o) => s + o.score, 0)
+    }));
+    scored.sort((a, b) => b.score - a.score || a.numbers.join(',').localeCompare(b.numbers.join(',')));
+    return scored.slice(0, topN);
+  }
+
   function deleteSession(idx) {
     if (!confirm('Delete this logged session? This cannot be undone.')) return;
     sessionHistoryData.splice(idx, 1);
@@ -927,6 +1020,10 @@
 
   // ---- init ----
   loadState();
+  try {
+    const savedComboSize = parseInt(localStorage.getItem(COMBO_SIZE_KEY), 10);
+    if (savedComboSize >= 2 && savedComboSize <= 12) comboSize = savedComboSize;
+  } catch (e) { /* ignore */ }
   ensureSessionDefaults();
   syncSessionInfoInputs();
   colorInput.value = color;
