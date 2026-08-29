@@ -345,6 +345,16 @@
 
   <!-- HISTORY VIEW -->
   <div class="view" id="historyView">
+    <div class="panel">
+      <div class="panel-title">Backup</div>
+      <p style="font-size:12px; color:rgba(244,237,228,0.6); margin:0 0 10px;">Save your data to a file, or restore it if this device's storage ever gets cleared.</p>
+      <div class="btn-group">
+        <button class="btn-session" id="exportBackupBtn">Export Backup</button>
+        <button class="btn-session" id="importBackupBtn">Import Backup</button>
+      </div>
+      <input type="file" id="importFileInput" accept="application/json,.json" style="display:none;">
+    </div>
+
     <div class="history-toolbar">
       <span id="historyCountLabel">0 sessions logged</span>
       <button class="btn-reset" id="clearHistoryBtn">Clear all history</button>
@@ -437,6 +447,9 @@
   const historyList = document.getElementById('historyList');
   const historyCountLabel = document.getElementById('historyCountLabel');
   const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+  const exportBackupBtn = document.getElementById('exportBackupBtn');
+  const importBackupBtn = document.getElementById('importBackupBtn');
+  const importFileInput = document.getElementById('importFileInput');
   const toast = document.getElementById('toast');
 
   // ---- persistence ----
@@ -1011,6 +1024,95 @@
     sessionHistoryData = [];
     saveHistory();
     renderHistoryList();
+  });
+
+  // ---- backup: export ----
+  function exportBackup() {
+    let currentState = null;
+    try { currentState = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch (e) { currentState = null; }
+    const payload = {
+      app: 'keno-tracker',
+      exportVersion: 1,
+      exportedAt: new Date().toISOString(),
+      currentState: currentState,
+      sessionHistory: sessionHistoryData,
+      comboSizePref: comboSize
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'keno-tracker-backup-' + localDateStr(new Date()) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showToast('Backup file downloaded');
+  }
+  exportBackupBtn.addEventListener('click', exportBackup);
+
+  // ---- backup: import ----
+  importBackupBtn.addEventListener('click', () => importFileInput.click());
+
+  importFileInput.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      let data;
+      try {
+        data = JSON.parse(reader.result);
+      } catch (err) {
+        alert('That file could not be read as a valid backup (not valid JSON).');
+        importFileInput.value = '';
+        return;
+      }
+      if (!data || typeof data !== 'object' || (!('currentState' in data) && !('sessionHistory' in data))) {
+        alert("That file doesn't look like a Keno Tracker backup.");
+        importFileInput.value = '';
+        return;
+      }
+
+      const gameCount = (data.currentState && Array.isArray(data.currentState.sessionGames)) ? data.currentState.sessionGames.length : 0;
+      const historyCount = Array.isArray(data.sessionHistory) ? data.sessionHistory.length : 0;
+      const confirmMsg = 'Import this backup?\n\n' + historyCount + ' logged session(s) and ' + gameCount +
+        ' game(s) from an in-progress session were found in the file.\n\nThis will REPLACE all data currently on this device.';
+      if (!confirm(confirmMsg)) { importFileInput.value = ''; return; }
+
+      try {
+        if (data.currentState) localStorage.setItem(STORAGE_KEY, JSON.stringify(data.currentState));
+        if (Array.isArray(data.sessionHistory)) localStorage.setItem(HISTORY_KEY, JSON.stringify(data.sessionHistory));
+        if (data.comboSizePref) localStorage.setItem(COMBO_SIZE_KEY, String(data.comboSizePref));
+      } catch (err) {
+        alert("Could not write the imported data to this device's storage.");
+        importFileInput.value = '';
+        return;
+      }
+
+      // reset in-memory state, then reload everything fresh from the storage we just wrote
+      counts = new Array(NUM_COUNT + 1).fill(0);
+      gameTapCounts = new Array(NUM_COUNT + 1).fill(0);
+      tapHistory = [];
+      sessionGames = [];
+      sessionStartDate = ''; sessionStartTime = ''; sessionDayOfWeek = DAYS[0]; sessionMonth = MONTHS[0];
+      sessionHistoryData = [];
+      loadState();
+      try {
+        const savedComboSize = parseInt(localStorage.getItem(COMBO_SIZE_KEY), 10);
+        if (savedComboSize >= 2 && savedComboSize <= 12) comboSize = savedComboSize;
+      } catch (err) { /* ignore */ }
+      ensureSessionDefaults();
+      syncSessionInfoInputs();
+      colorInput.value = color;
+      gameNumberInput.value = String(sessionGames.length + 1);
+      resetMultiplierChips();
+      render();
+      renderHistoryList();
+      importFileInput.value = '';
+      showToast('Backup imported');
+    };
+    reader.onerror = () => { alert('Could not read that file.'); importFileInput.value = ''; };
+    reader.readAsText(file);
   });
 
   // ---- misc controls ----
