@@ -1154,8 +1154,8 @@
         if (touchStartX === null) return;
         const deltaX = e.changedTouches[0].clientX - touchStartX;
         const threshold = 40;
-        if (deltaX > threshold) setPage(currentPage + 1);       // swipe right -> next page
-        else if (deltaX < -threshold) setPage(currentPage - 1); // swipe left -> previous page
+        if (deltaX < -threshold) setPage(currentPage + 1);      // swipe left -> next page
+        else if (deltaX > threshold) setPage(currentPage - 1);  // swipe right -> previous page
         touchStartX = null;
       }, { passive: true });
 
