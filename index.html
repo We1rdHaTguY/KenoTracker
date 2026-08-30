@@ -105,11 +105,15 @@
   button:disabled:active { transform: none; }
 
   .btn-undo { background: var(--gold); color: var(--felt-dark); }
-  .board-toolbar { margin-bottom: 8px; }
-  .btn-undo-board { width: 100%; padding: 12px; font-size: 14px; }
   .btn-reset { background: transparent; color: var(--danger); border: 1px solid rgba(181,68,59,0.6); }
   .btn-log { background: var(--gold-soft); color: var(--felt-dark); width: 100%; margin-top: 4px; }
   .btn-session { background: var(--felt-light); color: var(--cream); border: 1px solid var(--gold); }
+
+  .board-toolbar { display: flex; gap: 8px; margin-bottom: 8px; align-items: stretch; }
+  .board-toolbar .btn-undo { flex: 0 0 auto; white-space: nowrap; padding: 9px 14px; }
+  .view-toggle { display: flex; flex: 1; background: rgba(0,0,0,0.22); border-radius: 10px; padding: 3px; gap: 3px; }
+  .view-toggle-btn { flex: 1; background: transparent; color: rgba(244,237,228,0.6); font-size: 11.5px; padding: 0 4px; border-radius: 8px; }
+  .view-toggle-btn.active { background: var(--gold); color: var(--felt-dark); font-weight: 700; }
 
   .field-label { font-size: 12px; color: rgba(244,237,228,0.7); display: block; margin-bottom: 4px; }
   input[type="text"], input[type="number"], input[type="date"], input[type="time"], select {
@@ -153,6 +157,7 @@
     80% { transform: translateX(3px); }
   }
   .ball.shake { animation: shakeBall 0.3s ease; }
+  .ball.current-game-ring { outline: 3px solid var(--gold-soft); outline-offset: 1px; }
   .empty-note { color: rgba(244,237,228,0.45); font-size: 12px; padding: 6px 0; }
 
   .board {
@@ -199,6 +204,14 @@
   .session-details.open { display: block; }
   .game-entry { font-size: 12.5px; padding: 6px 0; border-top: 1px solid rgba(212,175,55,0.15); color: rgba(244,237,228,0.85); }
 
+  .carousel-wrap { margin-top: 12px; overflow: hidden; touch-action: pan-y; }
+  .carousel-caption { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: rgba(244,237,228,0.5); margin-bottom: 6px; text-align: center; }
+  .carousel-track { display: flex; transition: transform 0.25s ease; }
+  .carousel-page { flex: 0 0 100%; min-width: 100%; }
+  .carousel-dots { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(244,237,228,0.25); }
+  .dot.active { background: var(--gold); }
+
   .rank-list { margin-top: 8px; }
   .rank-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px solid rgba(212,175,55,0.15); font-size: 13px; }
   .rank-badge {
@@ -213,19 +226,15 @@
   .combo-size-row label { font-size: 12px; color: rgba(244,237,228,0.7); white-space: nowrap; }
   .combo-size-row select { width: auto; margin-bottom: 0; padding: 6px 10px; }
   .combo-list { margin-top: 4px; }
-  .combo-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px solid rgba(212,175,55,0.15); font-size: 12.5px; }
+  .combo-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px solid rgba(212,175,55,0.15); font-size: 12.5px; cursor: pointer; }
   .combo-numbers { flex: 1; color: var(--gold-soft); font-family: 'Space Grotesk', sans-serif; font-weight: 700; }
   .combo-score { color: rgba(244,237,228,0.85); flex-shrink: 0; }
+  .combo-chevron { color: rgba(244,237,228,0.4); font-size: 10px; flex-shrink: 0; transition: transform 0.15s ease; }
+  .combo-detail { display: none; padding: 2px 0 10px 30px; }
+  .combo-detail.open { display: block; }
+  .combo-game-entry { font-size: 11.5px; color: rgba(244,237,228,0.8); padding: 4px 0; border-top: 1px dashed rgba(212,175,55,0.15); }
 
-  .ocr-mini-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; margin-bottom: 10px; }
-  .ocr-num-btn {
-    aspect-ratio: 1/1; border-radius: 50%; background: rgba(255,255,255,0.08); color: var(--cream);
-    border: 1px solid rgba(212,175,55,0.35); font-family: 'Space Grotesk', sans-serif; font-weight: 700;
-    font-size: 11px; display: flex; align-items: center; justify-content: center; padding: 0;
-  }
-  .ocr-num-btn.selected { background: var(--gold); color: var(--felt-dark); border-color: var(--gold); }
-
-  .mini-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin-top: 10px; }
+  .mini-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
   .mini-ball {
     position: relative; aspect-ratio: 1/1; border-radius: 50%; font-size: 8px; display: flex; align-items: center;
     justify-content: center; color: #142019; font-weight: 700; background: #fff;
@@ -305,11 +314,6 @@
 
     <div class="panel">
       <div class="panel-title">Log a game</div>
-
-      <button class="btn-session" id="uploadScreenshotBtn" style="width:100%; margin-bottom:6px;">Scan Screenshot</button>
-      <input type="file" id="screenshotFileInput" accept="image/*" style="display:none;">
-      <p style="font-size:11px; color:rgba(244,237,228,0.5); margin:0 0 12px;">Beta: reads the game number, bonus, and numbers from a results screenshot. Always double-check the results before saving.</p>
-
       <div class="field-row">
         <div>
           <label class="field-label" for="gameNumberInput">Game number</label>
@@ -349,7 +353,11 @@
     </details>
 
     <div class="board-toolbar">
-      <button class="btn-undo btn-undo-board" id="undoBtn" disabled>Undo Last Tap</button>
+      <button class="btn-undo" id="undoBtn" disabled>Undo</button>
+      <div class="view-toggle" id="viewToggle">
+        <button class="view-toggle-btn active" data-mode="session" id="viewToggleAllBtn">All Games</button>
+        <button class="view-toggle-btn" data-mode="current" id="viewToggleCurrentBtn">This Game</button>
+      </div>
     </div>
     <div class="board" id="board"></div>
 
@@ -368,55 +376,11 @@
       <input type="file" id="importFileInput" accept="application/json,.json" style="display:none;">
     </div>
 
-    <div class="panel">
-      <div class="panel-title">Scanner Training</div>
-      <p style="font-size:12px; color:rgba(244,237,228,0.6); margin:0 0 10px;">The screenshot scanner remembers corrections you make (label positions, false-positive numbers) to read your lottery app's format better over time. Reset this if you switch to a different app or site.</p>
-      <button class="btn-reset" id="resetTrainingBtn">Reset Scanner Training</button>
-    </div>
-
     <div class="history-toolbar">
       <span id="historyCountLabel">0 sessions logged</span>
       <button class="btn-reset" id="clearHistoryBtn">Clear all history</button>
     </div>
     <div id="historyList"></div>
-  </div>
-</div>
-
-<!-- SCANNED SCREENSHOT REVIEW MODAL -->
-<div class="modal-overlay" id="ocrModalOverlay">
-  <div class="modal-box">
-    <h2>Review Scanned Game</h2>
-    <p class="hint">We did our best to read the screenshot. Please check the game number, multiplier, and numbers below and fix anything that's wrong before using these results.</p>
-
-    <label class="field-label" for="ocrGameNumberInput">Game number</label>
-    <input type="text" id="ocrGameNumberInput" placeholder="e.g. 1">
-
-    <label class="field-label">Multiplier</label>
-    <div class="chip-row" id="ocrMultiplierChipRow">
-      <button class="chip selected" data-val="None">None</button>
-      <button class="chip" data-val="2X">2X</button>
-      <button class="chip" data-val="3X">3X</button>
-      <button class="chip" data-val="4X">4X</button>
-      <button class="chip" data-val="5X">5X</button>
-      <button class="chip" data-val="8X">8X</button>
-      <button class="chip" data-val="10X">10X</button>
-      <button class="chip" data-val="20X">20X</button>
-      <button class="chip" data-val="custom">Custom&hellip;</button>
-    </div>
-    <input type="text" id="ocrCustomMultiplierInput" placeholder="Custom multiplier (e.g. 6X)" style="display:none;">
-
-    <label class="field-label">Detected numbers (tap to fix, max 20)</label>
-    <div class="ocr-mini-board" id="ocrMiniBoard"></div>
-    <div class="hit-preview" id="ocrCountPreview">0 numbers selected</div>
-
-    <p class="hint" style="margin-bottom:8px;">Fixed something above? Tap "Re-check" to teach the scanner from your fix and see it re-read this same screenshot with the correction applied.</p>
-    <div class="hit-preview" id="ocrLearnFeedback" style="display:none;"></div>
-
-    <div class="modal-actions">
-      <button class="btn-cancel" id="ocrModalCancel">Cancel</button>
-      <button class="btn-cancel" id="ocrRecheckBtn" style="border-color:var(--gold-soft); color:var(--gold-soft);">Re-check</button>
-      <button class="btn-save" id="ocrModalUse">Use These Results</button>
-    </div>
   </div>
 </div>
 
@@ -448,12 +412,12 @@
 
 <script>
 (function () {
-  const STORAGE_KEY = 'kenoTrackerState_v3';
+  const STORAGE_KEY = 'kenoTrackerState_v4';
   const HISTORY_KEY = 'kenoSessionHistory_v1';
   const COMBO_SIZE_KEY = 'kenoComboSizePref_v1';
-  const OCR_TRAINING_KEY = 'kenoOcrTraining_v1';
   const NUM_COUNT = 80;
   const MAX_LEVEL = 8;
+  const MAX_NUMBERS_PER_GAME = 20;
   const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
@@ -464,9 +428,9 @@
   let sessionGames = [];                                 // logged games this session
   let color = '#B5443B';
   let comboSize = 2;
-  let learnedPatterns = { gameNumber: [], multiplier: [], numberExclusions: [] };
   let selectedMultiplier = 'None';
   let sessionHistoryData = [];
+  let boardViewMode = 'session'; // 'session' (All Games) or 'current' (This Game)
 
   let sessionStartDate = '';
   let sessionStartTime = '';
@@ -478,6 +442,8 @@
   const colorInput = document.getElementById('colorInput');
   const undoBtn = document.getElementById('undoBtn');
   const resetBtn = document.getElementById('resetBtn');
+  const viewToggleAllBtn = document.getElementById('viewToggleAllBtn');
+  const viewToggleCurrentBtn = document.getElementById('viewToggleCurrentBtn');
   const gamesCountLabel = document.getElementById('gamesCountLabel');
   const gamesListItems = document.getElementById('gamesListItems');
   const logGameBtn = document.getElementById('logGameBtn');
@@ -487,20 +453,6 @@
   const multiplierChipRow = document.getElementById('multiplierChipRow');
   const customMultiplierInput = document.getElementById('customMultiplierInput');
   const hitPreview = document.getElementById('hitPreview');
-
-  const uploadScreenshotBtn = document.getElementById('uploadScreenshotBtn');
-  const screenshotFileInput = document.getElementById('screenshotFileInput');
-  const ocrModalOverlay = document.getElementById('ocrModalOverlay');
-  const ocrGameNumberInput = document.getElementById('ocrGameNumberInput');
-  const ocrMultiplierChipRow = document.getElementById('ocrMultiplierChipRow');
-  const ocrCustomMultiplierInput = document.getElementById('ocrCustomMultiplierInput');
-  const ocrMiniBoard = document.getElementById('ocrMiniBoard');
-  const ocrCountPreview = document.getElementById('ocrCountPreview');
-  const ocrModalCancel = document.getElementById('ocrModalCancel');
-  const ocrModalUse = document.getElementById('ocrModalUse');
-  const ocrRecheckBtn = document.getElementById('ocrRecheckBtn');
-  const ocrLearnFeedback = document.getElementById('ocrLearnFeedback');
-  const resetTrainingBtn = document.getElementById('resetTrainingBtn');
 
   const sessionStartDateInput = document.getElementById('sessionStartDateInput');
   const sessionStartTimeInput = document.getElementById('sessionStartTimeInput');
@@ -539,6 +491,7 @@
         if (typeof data.sessionStartTime === 'string') sessionStartTime = data.sessionStartTime;
         if (typeof data.sessionDayOfWeek === 'string') sessionDayOfWeek = data.sessionDayOfWeek;
         if (typeof data.sessionMonth === 'string') sessionMonth = data.sessionMonth;
+        if (data.boardViewMode === 'session' || data.boardViewMode === 'current') boardViewMode = data.boardViewMode;
       }
     } catch (e) { /* ignore corrupt state */ }
     try {
@@ -551,7 +504,7 @@
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         counts, gameTapCounts, color, sessionGames,
-        sessionStartDate, sessionStartTime, sessionDayOfWeek, sessionMonth
+        sessionStartDate, sessionStartTime, sessionDayOfWeek, sessionMonth, boardViewMode
       }));
     } catch (e) { /* storage unavailable */ }
   }
@@ -579,6 +532,17 @@
       const extra = Math.min((count - MAX_LEVEL) / MAX_LEVEL, 1);
       rgb = mix(target, [0, 0, 0], extra * 0.55);
     }
+    const text = luminance(rgb) > 140 ? '#142019' : '#F4EDE4';
+    return { bg: rgb, text };
+  }
+
+  // Rank-based heat gradient: red (hottest / rank 1) -> purple (middle) -> blue (coldest / last rank).
+  function rankHeatColor(rankIndex, total) {
+    const RED = [211, 47, 47];
+    const PURPLE = [126, 62, 181];
+    const BLUE = [42, 98, 199];
+    const t = total <= 1 ? 0 : rankIndex / (total - 1);
+    const rgb = t <= 0.5 ? mix(RED, PURPLE, t / 0.5) : mix(PURPLE, BLUE, (t - 0.5) / 0.5);
     const text = luminance(rgb) > 140 ? '#142019' : '#F4EDE4';
     return { bg: rgb, text };
   }
@@ -615,12 +579,29 @@
     for (let n = 1; n <= NUM_COUNT; n++) {
       const cell = boardEl.children[n - 1];
       const count = counts[n];
-      const { bg, text } = colorForCount(count, color);
+      const isCurrentGameHit = gameTapCounts[n] > 0;
+      const badge = cell.querySelector('.count-badge');
+      let bg, text;
+
+      if (boardViewMode === 'current') {
+        if (isCurrentGameHit) {
+          bg = hexToRgb(color);
+          text = luminance(bg) > 140 ? '#142019' : '#F4EDE4';
+        } else {
+          bg = [255, 255, 255];
+          text = '#142019';
+        }
+        badge.style.display = 'none';
+        cell.classList.remove('current-game-ring');
+      } else {
+        ({ bg, text } = colorForCount(count, color));
+        if (count > 0) { badge.textContent = count; badge.style.display = 'flex'; }
+        else { badge.style.display = 'none'; }
+        cell.classList.toggle('current-game-ring', isCurrentGameHit);
+      }
+
       cell.style.backgroundColor = `rgb(${bg[0]}, ${bg[1]}, ${bg[2]})`;
       cell.style.color = text;
-      const badge = cell.querySelector('.count-badge');
-      if (count > 0) { badge.textContent = count; badge.style.display = 'flex'; }
-      else { badge.style.display = 'none'; }
     }
     undoBtn.disabled = tapHistory.length === 0;
     gamesCountLabel.textContent = sessionGames.length;
@@ -642,8 +623,6 @@
     }
     boardEl.appendChild(frag);
   }
-
-  const MAX_NUMBERS_PER_GAME = 20;
 
   function currentGameHitCount() {
     let c = 0;
@@ -671,8 +650,7 @@
   function flashBlocked(n, message) {
     const cell = boardEl.children[n - 1];
     cell.classList.remove('shake');
-    // force reflow so the animation can replay if tapped again quickly
-    void cell.offsetWidth;
+    void cell.offsetWidth; // force reflow so the animation can replay if tapped again quickly
     cell.classList.add('shake');
     setTimeout(() => cell.classList.remove('shake'), 320);
     showToast(message);
@@ -699,6 +677,17 @@
     saveState();
     render();
   }
+
+  // ---- board view mode toggle ----
+  function setBoardViewMode(mode) {
+    boardViewMode = mode;
+    viewToggleAllBtn.classList.toggle('active', mode === 'session');
+    viewToggleCurrentBtn.classList.toggle('active', mode === 'current');
+    saveState();
+    render();
+  }
+  viewToggleAllBtn.addEventListener('click', () => setBoardViewMode('session'));
+  viewToggleCurrentBtn.addEventListener('click', () => setBoardViewMode('current'));
 
   // ---- hit preview (live, updates as user taps) ----
   function renderHitPreview() {
@@ -787,300 +776,6 @@
   }
 
   logGameBtn.addEventListener('click', saveGame);
-
-  // ---- screenshot scan (OCR) ----
-  const KNOWN_MULTIPLIERS = ['None', '2X', '3X', '4X', '5X', '8X', '10X', '20X'];
-  let tesseractLoadingPromise = null;
-
-  function loadTesseract() {
-    if (window.Tesseract) return Promise.resolve();
-    if (tesseractLoadingPromise) return tesseractLoadingPromise;
-    tesseractLoadingPromise = new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-      script.onload = () => resolve();
-      script.onerror = () => { tesseractLoadingPromise = null; reject(new Error('Failed to load OCR library')); };
-      document.head.appendChild(script);
-    });
-    return tesseractLoadingPromise;
-  }
-
-  // ---- scanner training (learned corrections) ----
-  function loadTraining() {
-    try {
-      const raw = localStorage.getItem(OCR_TRAINING_KEY);
-      if (raw) {
-        const data = JSON.parse(raw);
-        learnedPatterns = {
-          gameNumber: Array.isArray(data.gameNumber) ? data.gameNumber : [],
-          multiplier: Array.isArray(data.multiplier) ? data.multiplier : [],
-          numberExclusions: Array.isArray(data.numberExclusions) ? data.numberExclusions : []
-        };
-      }
-    } catch (e) { /* ignore corrupt training data */ }
-  }
-  function saveTraining() {
-    try { localStorage.setItem(OCR_TRAINING_KEY, JSON.stringify(learnedPatterns)); } catch (e) { /* ignore */ }
-  }
-
-  function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-
-  // Learn a small regex template from the text surrounding a corrected value, so the same
-  // label/position on this user's screenshots gets recognized directly next time.
-  function learnFieldPattern(fieldKey, rawText, valueDigits, captureLen) {
-    if (!rawText || !valueDigits) return false;
-    const idx = rawText.indexOf(valueDigits);
-    if (idx === -1) return false;
-    const before = rawText.slice(Math.max(0, idx - 15), idx);
-    const after = rawText.slice(idx + valueDigits.length, idx + valueDigits.length + 5);
-    const template = escapeRegex(before) + '(\\d{1,' + captureLen + '})' + escapeRegex(after);
-    let patterns = learnedPatterns[fieldKey] || [];
-    patterns = patterns.filter(p => p.template !== template);
-    patterns.unshift({ template, createdAt: Date.now() });
-    learnedPatterns[fieldKey] = patterns.slice(0, 5);
-    saveTraining();
-    return true;
-  }
-
-  function tryLearnedPatterns(fieldKey, text) {
-    const patterns = learnedPatterns[fieldKey] || [];
-    for (const p of patterns) {
-      try {
-        const re = new RegExp(p.template, 'i');
-        const m = text.match(re);
-        if (m && m[1]) return m[1];
-      } catch (e) { /* stale/invalid pattern, skip */ }
-    }
-    return null;
-  }
-
-  // Remember the short text context around a number that turned out to be a false positive,
-  // so an identical context is skipped automatically on future scans of this same layout.
-  function learnNumberExclusion(rawText, idx, numStr) {
-    const ctx = rawText.slice(Math.max(0, idx - 8), idx + numStr.length + 3);
-    let exclusions = learnedPatterns.numberExclusions || [];
-    if (exclusions.some(e => e.context === ctx)) return;
-    exclusions.unshift({ context: ctx, createdAt: Date.now() });
-    learnedPatterns.numberExclusions = exclusions.slice(0, 20);
-    saveTraining();
-  }
-
-  function isExcludedContext(rawText, idx, numStr) {
-    const exclusions = learnedPatterns.numberExclusions || [];
-    if (!exclusions.length) return false;
-    const ctx = rawText.slice(Math.max(0, idx - 8), idx + numStr.length + 3);
-    return exclusions.some(e => e.context === ctx);
-  }
-
-  function parseOcrText(text) {
-    const result = { gameNumber: '', multiplier: '', numbers: [] };
-    let scanText = text;
-
-    const learnedGameNum = tryLearnedPatterns('gameNumber', text);
-    if (learnedGameNum) {
-      result.gameNumber = learnedGameNum;
-      scanText = scanText.replace(learnedGameNum, ' ');
-    } else {
-      const gameMatch = text.match(/(?:game|draw)\s*(?:no\.?|number|#)?\s*[:#\-]?\s*(\d{1,6})/i);
-      if (gameMatch) {
-        result.gameNumber = gameMatch[1];
-        scanText = scanText.replace(gameMatch[0], ' ');
-      }
-    }
-
-    const learnedMulti = tryLearnedPatterns('multiplier', text);
-    if (learnedMulti) {
-      result.multiplier = learnedMulti + 'X';
-      scanText = scanText.replace(learnedMulti, ' ');
-    } else {
-      const multiPatterns = [
-        /(\d{1,3})\s*x\b[^\n\r]{0,15}(?:bonus|multiplier|kicker)/i,
-        /(?:bonus|multiplier|kicker)[^\n\r]{0,15}(\d{1,3})\s*x\b/i,
-        /(?:bonus|multiplier|kicker)[^\n\r]{0,15}x\s*(\d{1,3})\b/i,
-        /\b(\d{1,3})\s*x\b/i,
-        /\bx\s*(\d{1,3})\b/i
-      ];
-      let multiMatch = null;
-      for (const p of multiPatterns) { multiMatch = text.match(p); if (multiMatch) break; }
-      if (multiMatch) {
-        result.multiplier = multiMatch[1] + 'X';
-        scanText = scanText.replace(multiMatch[0], ' ');
-      }
-    }
-
-    const seen = new Set();
-    const numRe = /\b\d{1,2}\b/g;
-    let tokenMatch;
-    while ((tokenMatch = numRe.exec(scanText)) !== null) {
-      const n = parseInt(tokenMatch[0], 10);
-      if (n >= 1 && n <= 80 && !seen.has(n) && !isExcludedContext(scanText, tokenMatch.index, tokenMatch[0])) {
-        seen.add(n);
-        result.numbers.push(n);
-      }
-    }
-    result.numbers = result.numbers.slice(0, MAX_NUMBERS_PER_GAME);
-
-    return result;
-  }
-
-  uploadScreenshotBtn.addEventListener('click', () => screenshotFileInput.click());
-
-  screenshotFileInput.addEventListener('change', async (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-    const originalLabel = uploadScreenshotBtn.textContent;
-    uploadScreenshotBtn.disabled = true;
-
-    try {
-      uploadScreenshotBtn.textContent = 'Loading OCR engine\u2026';
-      await loadTesseract();
-    } catch (err) {
-      alert('Could not load the OCR engine. Check your internet connection and try again.');
-      uploadScreenshotBtn.disabled = false;
-      uploadScreenshotBtn.textContent = originalLabel;
-      screenshotFileInput.value = '';
-      return;
-    }
-
-    try {
-      uploadScreenshotBtn.textContent = 'Reading screenshot\u2026';
-      const { data: { text } } = await Tesseract.recognize(file, 'eng', {
-        logger: (m) => {
-          if (m.status === 'recognizing text' && typeof m.progress === 'number') {
-            uploadScreenshotBtn.textContent = 'Reading screenshot\u2026 ' + Math.round(m.progress * 100) + '%';
-          }
-        }
-      });
-      const parsed = parseOcrText(text);
-      openOcrModal(parsed);
-    } catch (err) {
-      alert('Could not read that image. Try a clearer or higher-resolution screenshot.');
-    } finally {
-      uploadScreenshotBtn.disabled = false;
-      uploadScreenshotBtn.textContent = originalLabel;
-      screenshotFileInput.value = '';
-    }
-  });
-
-  let ocrSelected = new Array(NUM_COUNT + 1).fill(false);
-  let ocrSelectedMultiplier = 'None';
-
-  function buildOcrMiniBoard() {
-    ocrMiniBoard.innerHTML = '';
-    for (let n = 1; n <= NUM_COUNT; n++) {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'ocr-num-btn';
-      btn.textContent = n;
-      btn.addEventListener('click', () => {
-        ocrSelected[n] = !ocrSelected[n];
-        btn.classList.toggle('selected', ocrSelected[n]);
-        updateOcrCountPreview();
-      });
-      ocrMiniBoard.appendChild(btn);
-    }
-  }
-  buildOcrMiniBoard();
-
-  function updateOcrCountPreview() {
-    const count = ocrSelected.filter(Boolean).length;
-    let msg = count + (count === 1 ? ' number selected' : ' numbers selected');
-    if (count > MAX_NUMBERS_PER_GAME) msg += ' \u2014 over the ' + MAX_NUMBERS_PER_GAME + ' limit, deselect some to continue';
-    ocrCountPreview.textContent = msg;
-  }
-
-  function setOcrMultiplierChip(val) {
-    ocrSelectedMultiplier = val;
-    [...ocrMultiplierChipRow.children].forEach(c => c.classList.toggle('selected', c.dataset.val === val));
-    ocrCustomMultiplierInput.style.display = val === 'custom' ? 'block' : 'none';
-  }
-
-  function openOcrModal(parsed) {
-    ocrGameNumberInput.value = parsed.gameNumber || String(sessionGames.length + 1);
-    ocrCustomMultiplierInput.value = '';
-    if (parsed.multiplier && KNOWN_MULTIPLIERS.includes(parsed.multiplier)) {
-      setOcrMultiplierChip(parsed.multiplier);
-    } else if (parsed.multiplier) {
-      setOcrMultiplierChip('custom');
-      ocrCustomMultiplierInput.value = parsed.multiplier;
-    } else {
-      setOcrMultiplierChip('None');
-    }
-
-    ocrSelected = new Array(NUM_COUNT + 1).fill(false);
-    parsed.numbers.forEach(n => { ocrSelected[n] = true; });
-    [...ocrMiniBoard.children].forEach((btn, idx) => {
-      const n = idx + 1;
-      btn.classList.toggle('selected', ocrSelected[n]);
-    });
-    updateOcrCountPreview();
-
-    ocrModalOverlay.classList.add('open');
-  }
-  function closeOcrModal() { ocrModalOverlay.classList.remove('open'); }
-
-  ocrMultiplierChipRow.addEventListener('click', (e) => {
-    const chip = e.target.closest('.chip');
-    if (!chip) return;
-    setOcrMultiplierChip(chip.dataset.val);
-    if (chip.dataset.val === 'custom') ocrCustomMultiplierInput.focus();
-  });
-
-  ocrModalCancel.addEventListener('click', closeOcrModal);
-  ocrModalOverlay.addEventListener('click', (e) => { if (e.target === ocrModalOverlay) closeOcrModal(); });
-
-  ocrModalUse.addEventListener('click', () => {
-    const selectedNumbers = [];
-    for (let n = 1; n <= NUM_COUNT; n++) if (ocrSelected[n]) selectedNumbers.push(n);
-    if (selectedNumbers.length === 0) { alert('Select at least one number before continuing.'); return; }
-    if (selectedNumbers.length > MAX_NUMBERS_PER_GAME) { alert('You can only use up to ' + MAX_NUMBERS_PER_GAME + ' numbers. Deselect some first.'); return; }
-
-    let multiplier = ocrSelectedMultiplier;
-    if (multiplier === 'custom') {
-      const custom = ocrCustomMultiplierInput.value.trim();
-      if (!custom) { alert('Enter a custom multiplier, or pick a preset.'); return; }
-      multiplier = custom;
-    }
-    const gameNum = ocrGameNumberInput.value.trim();
-    if (!gameNum) { alert('Enter a game number.'); return; }
-
-    applyScannedGame(gameNum, multiplier, selectedNumbers);
-    closeOcrModal();
-  });
-
-  function applyScannedGame(gameNum, multiplier, numbers) {
-    // clear any partial taps already made for the current, not-yet-logged game
-    for (let n = 1; n <= NUM_COUNT; n++) {
-      if (gameTapCounts[n] > 0) {
-        counts[n] = Math.max(0, counts[n] - 1);
-        gameTapCounts[n] = 0;
-      }
-    }
-    tapHistory = [];
-    ensureSessionDefaults();
-    numbers.forEach(n => {
-      counts[n] += 1;
-      gameTapCounts[n] = 1;
-      tapHistory.push(n);
-    });
-    saveState();
-    render();
-
-    gameNumberInput.value = gameNum;
-    if (KNOWN_MULTIPLIERS.includes(multiplier)) {
-      selectedMultiplier = multiplier;
-      [...multiplierChipRow.children].forEach(c => c.classList.toggle('selected', c.dataset.val === multiplier));
-      customMultiplierInput.style.display = 'none';
-      customMultiplierInput.value = '';
-    } else {
-      selectedMultiplier = 'custom';
-      [...multiplierChipRow.children].forEach(c => c.classList.toggle('selected', c.dataset.val === 'custom'));
-      customMultiplierInput.style.display = 'block';
-      customMultiplierInput.value = multiplier;
-    }
-
-    showToast('Scanned results loaded \u2014 review, then tap Log Game');
-  }
 
   // ---- session start detail inputs ----
   sessionStartDateInput.addEventListener('change', () => {
@@ -1173,154 +868,6 @@
   tabBoardBtn.addEventListener('click', () => showTab('board'));
   tabHistoryBtn.addEventListener('click', () => showTab('history'));
 
-  function renderHistoryList() {
-    historyCountLabel.textContent = sessionHistoryData.length + (sessionHistoryData.length === 1 ? ' session logged' : ' sessions logged');
-    if (sessionHistoryData.length === 0) {
-      historyList.innerHTML = '<div class="no-history">No sessions logged yet. Play a session, then tap &ldquo;Log Session&rdquo; to archive it here.</div>';
-      return;
-    }
-    historyList.innerHTML = '';
-    sessionHistoryData.forEach((rec, idx) => {
-      const card = document.createElement('div');
-      card.className = 'session-card';
-
-      const header = document.createElement('div');
-      header.className = 'session-card-header';
-      header.innerHTML = `
-        <div>
-          <h3>${escapeHtml(rec.month)} ${escapeHtml(rec.startDate)} &mdash; ${escapeHtml(rec.dayOfWeek)}</h3>
-          <div class="session-meta">${escapeHtml(rec.startTime || '')} to ${escapeHtml(rec.endTime || '')} on ${escapeHtml(rec.endDate)} &middot; ${rec.games.length} games logged</div>
-        </div>`;
-      const del = document.createElement('button');
-      del.className = 'del-btn';
-      del.innerHTML = '&times;';
-      del.title = 'Delete this session';
-      del.addEventListener('click', (e) => { e.stopPropagation(); deleteSession(idx); });
-      header.appendChild(del);
-
-      const details = document.createElement('div');
-      details.className = 'session-details';
-
-      if (rec.games.length === 0) {
-        details.innerHTML = '<div class="empty-note">No individual games were logged in this session.</div>';
-      } else {
-        rec.games.forEach(g => {
-          const numbersStr = g.numbers.length ? g.numbers.map(x => x.number + (x.hits > 1 ? ' (\u00d7' + x.hits + ')' : '')).join(', ') : 'none';
-          const entry = document.createElement('div');
-          entry.className = 'game-entry';
-          entry.innerHTML = `<b>#${escapeHtml(g.gameNumber)}</b> &middot; ${escapeHtml(g.multiplier)} &middot; ${escapeHtml(numbersStr)}`;
-          details.appendChild(entry);
-        });
-      }
-
-      const ranking = computeRanking(rec);
-      if (ranking.length) {
-        const rankLabel = document.createElement('div');
-        rankLabel.className = 'field-label';
-        rankLabel.style.marginTop = '10px';
-        rankLabel.textContent = 'Ranked numbers (frequency \u00d7 multiplier)';
-        details.appendChild(rankLabel);
-
-        const rankList = document.createElement('div');
-        rankList.className = 'rank-list';
-        ranking.forEach((r, i) => {
-          const row = document.createElement('div');
-          row.className = 'rank-row';
-          const gamesLabel = r.appearances + (r.appearances === 1 ? ' game' : ' games');
-          const weightedNote = r.score !== r.appearances ? ` \u00b7 weighted by multiplier` : '';
-          row.innerHTML = `<span class="rank-badge">${i + 1}</span><span class="rank-number">${r.number}</span><span class="rank-score">${r.score} pt${r.score !== 1 ? 's' : ''}<span class="rank-sub">${gamesLabel}${weightedNote}</span></span>`;
-          rankList.appendChild(row);
-        });
-        details.appendChild(rankList);
-      }
-
-      const comboWrap = document.createElement('div');
-      comboWrap.style.marginTop = '14px';
-
-      const comboLabel = document.createElement('div');
-      comboLabel.className = 'field-label';
-      comboLabel.textContent = 'Top 10 combos';
-      comboWrap.appendChild(comboLabel);
-
-      const sizeRow = document.createElement('div');
-      sizeRow.className = 'combo-size-row';
-      const sizeLabelEl = document.createElement('label');
-      sizeLabelEl.textContent = 'Combo size';
-      const sizeSelect = document.createElement('select');
-      for (let s = 2; s <= 12; s++) {
-        const opt = document.createElement('option');
-        opt.value = s;
-        opt.textContent = s + (s === 1 ? ' number' : ' numbers');
-        sizeSelect.appendChild(opt);
-      }
-      sizeSelect.value = comboSize;
-      sizeRow.appendChild(sizeLabelEl);
-      sizeRow.appendChild(sizeSelect);
-      comboWrap.appendChild(sizeRow);
-
-      const comboListEl = document.createElement('div');
-      comboListEl.className = 'combo-list';
-      comboWrap.appendChild(comboListEl);
-
-      function renderCombos() {
-        const x = parseInt(sizeSelect.value, 10);
-        comboSize = x;
-        try { localStorage.setItem(COMBO_SIZE_KEY, String(x)); } catch (e) { /* ignore */ }
-        const combos = computeTopCombos(ranking, x);
-        comboListEl.innerHTML = '';
-        if (!combos) {
-          comboListEl.innerHTML = '<div class="empty-note">Not enough different numbers were logged this session to form a ' + x + '-number combo.</div>';
-          return;
-        }
-        combos.forEach((c, i) => {
-          const row = document.createElement('div');
-          row.className = 'combo-row';
-          row.innerHTML = `<span class="rank-badge">${i + 1}</span><span class="combo-numbers">${c.numbers.join(', ')}</span><span class="combo-score">${c.score} pt${c.score !== 1 ? 's' : ''}</span>`;
-          comboListEl.appendChild(row);
-        });
-      }
-      sizeSelect.addEventListener('change', renderCombos);
-      renderCombos();
-
-      details.appendChild(comboWrap);
-
-      const rankMap = {};
-      ranking.forEach((r, i) => { rankMap[r.number] = i + 1; });
-
-      const miniLabel = document.createElement('div');
-      miniLabel.className = 'field-label';
-      miniLabel.style.marginTop = '10px';
-      miniLabel.textContent = 'Board results (ranked)';
-      details.appendChild(miniLabel);
-
-      const mini = document.createElement('div');
-      mini.className = 'mini-board';
-      for (let n = 1; n <= NUM_COUNT; n++) {
-        const c = (rec.counts && rec.counts[n]) ? rec.counts[n] : 0;
-        const { bg, text } = colorForCount(c, rec.color || '#B5443B');
-        const b = document.createElement('div');
-        b.className = 'mini-ball';
-        b.style.backgroundColor = `rgb(${bg[0]}, ${bg[1]}, ${bg[2]})`;
-        b.style.color = text;
-        b.textContent = n;
-        if (c > 0 && rankMap[n]) {
-          const badge = document.createElement('span');
-          badge.className = 'mini-badge';
-          badge.textContent = rankMap[n];
-          b.appendChild(badge);
-        }
-        mini.appendChild(b);
-      }
-      details.appendChild(mini);
-
-      header.addEventListener('click', () => details.classList.toggle('open'));
-
-      card.appendChild(header);
-      card.appendChild(details);
-      historyList.appendChild(card);
-    });
-  }
-
   function multiplierWeight(m) {
     if (!m) return 1;
     const s = String(m).trim();
@@ -1378,6 +925,21 @@
     return scored.slice(0, topN);
   }
 
+  // Per-game breakdown of where a combo's points came from: which games matched, which of the
+  // combo's numbers hit in each, the multiplier, and the points earned that game.
+  function computeComboGameBreakdown(rec, comboNumbers) {
+    const comboSet = new Set(comboNumbers);
+    const rows = [];
+    (rec.games || []).forEach(g => {
+      const matched = (g.numbers || []).map(x => x.number).filter(n => comboSet.has(n)).sort((a, b) => a - b);
+      if (matched.length === 0) return;
+      const w = multiplierWeight(g.multiplier);
+      rows.push({ gameNumber: g.gameNumber, multiplier: g.multiplier, matched, points: matched.length * w });
+    });
+    rows.sort((a, b) => b.points - a.points || String(a.gameNumber).localeCompare(String(b.gameNumber)));
+    return rows;
+  }
+
   function deleteSession(idx) {
     if (!confirm('Delete this logged session? This cannot be undone.')) return;
     sessionHistoryData.splice(idx, 1);
@@ -1393,13 +955,228 @@
     renderHistoryList();
   });
 
+  function renderHistoryList() {
+    historyCountLabel.textContent = sessionHistoryData.length + (sessionHistoryData.length === 1 ? ' session logged' : ' sessions logged');
+    if (sessionHistoryData.length === 0) {
+      historyList.innerHTML = '<div class="no-history">No sessions logged yet. Play a session, then tap &ldquo;Log Session&rdquo; to archive it here.</div>';
+      return;
+    }
+    historyList.innerHTML = '';
+    sessionHistoryData.forEach((rec, idx) => {
+      const card = document.createElement('div');
+      card.className = 'session-card';
+
+      const header = document.createElement('div');
+      header.className = 'session-card-header';
+      header.innerHTML = `
+        <div>
+          <h3>${escapeHtml(rec.month)} ${escapeHtml(rec.startDate)} &mdash; ${escapeHtml(rec.dayOfWeek)}</h3>
+          <div class="session-meta">${escapeHtml(rec.startTime || '')} to ${escapeHtml(rec.endTime || '')} on ${escapeHtml(rec.endDate)} &middot; ${rec.games.length} games logged</div>
+        </div>`;
+      const del = document.createElement('button');
+      del.className = 'del-btn';
+      del.innerHTML = '&times;';
+      del.title = 'Delete this session';
+      del.addEventListener('click', (e) => { e.stopPropagation(); deleteSession(idx); });
+      header.appendChild(del);
+
+      const details = document.createElement('div');
+      details.className = 'session-details';
+
+      // ---- game entries (always visible when expanded) ----
+      if (rec.games.length === 0) {
+        details.innerHTML = '<div class="empty-note">No individual games were logged in this session.</div>';
+      } else {
+        rec.games.forEach(g => {
+          const numbersStr = g.numbers.length ? g.numbers.map(x => x.number + (x.hits > 1 ? ' (\u00d7' + x.hits + ')' : '')).join(', ') : 'none';
+          const entry = document.createElement('div');
+          entry.className = 'game-entry';
+          entry.innerHTML = `<b>#${escapeHtml(g.gameNumber)}</b> &middot; ${escapeHtml(g.multiplier)} &middot; ${escapeHtml(numbersStr)}`;
+          details.appendChild(entry);
+        });
+      }
+
+      const ranking = computeRanking(rec);
+      const rankMap = {};
+      ranking.forEach((r, i) => { rankMap[r.number] = i + 1; });
+
+      // ---- swipeable carousel: mini board -> ranked numbers -> top combos ----
+      const carouselWrap = document.createElement('div');
+      carouselWrap.className = 'carousel-wrap';
+
+      const pageNames = ['Board results (swipe for more \u2192)', 'Ranked numbers', 'Top combos'];
+      const caption = document.createElement('div');
+      caption.className = 'carousel-caption';
+      caption.textContent = pageNames[0];
+      carouselWrap.appendChild(caption);
+
+      const track = document.createElement('div');
+      track.className = 'carousel-track';
+
+      // Page 0: mini board (rank-heat colored)
+      const page0 = document.createElement('div');
+      page0.className = 'carousel-page';
+      const mini = document.createElement('div');
+      mini.className = 'mini-board';
+      for (let n = 1; n <= NUM_COUNT; n++) {
+        const c = (rec.counts && rec.counts[n]) ? rec.counts[n] : 0;
+        const b = document.createElement('div');
+        b.className = 'mini-ball';
+        b.textContent = n;
+        if (c > 0 && rankMap[n]) {
+          const heat = rankHeatColor(rankMap[n] - 1, ranking.length);
+          b.style.backgroundColor = `rgb(${heat.bg[0]}, ${heat.bg[1]}, ${heat.bg[2]})`;
+          b.style.color = heat.text;
+          const badge = document.createElement('span');
+          badge.className = 'mini-badge';
+          badge.textContent = rankMap[n];
+          b.appendChild(badge);
+        } else {
+          b.style.backgroundColor = '#fff';
+          b.style.color = '#142019';
+        }
+        mini.appendChild(b);
+      }
+      page0.appendChild(mini);
+      track.appendChild(page0);
+
+      // Page 1: ranked numbers list (rank-heat colored badges)
+      const page1 = document.createElement('div');
+      page1.className = 'carousel-page';
+      if (ranking.length === 0) {
+        page1.innerHTML = '<div class="empty-note">No numbers were logged in this session.</div>';
+      } else {
+        const rankList = document.createElement('div');
+        rankList.className = 'rank-list';
+        ranking.forEach((r, i) => {
+          const heat = rankHeatColor(i, ranking.length);
+          const row = document.createElement('div');
+          row.className = 'rank-row';
+          const gamesLabel = r.appearances + (r.appearances === 1 ? ' game' : ' games');
+          const weightedNote = r.score !== r.appearances ? ' \u00b7 weighted by multiplier' : '';
+          row.innerHTML = `<span class="rank-badge" style="background:rgb(${heat.bg[0]},${heat.bg[1]},${heat.bg[2]});color:${heat.text};">${i + 1}</span><span class="rank-number">${r.number}</span><span class="rank-score">${r.score} pt${r.score !== 1 ? 's' : ''}<span class="rank-sub">${gamesLabel}${weightedNote}</span></span>`;
+          rankList.appendChild(row);
+        });
+        page1.appendChild(rankList);
+      }
+      track.appendChild(page1);
+
+      // Page 2: top combos, with a tap-to-expand per-game breakdown
+      const page2 = document.createElement('div');
+      page2.className = 'carousel-page';
+
+      const comboLabel = document.createElement('div');
+      comboLabel.className = 'field-label';
+      comboLabel.textContent = 'Top 10 combos';
+      page2.appendChild(comboLabel);
+
+      const sizeRow = document.createElement('div');
+      sizeRow.className = 'combo-size-row';
+      const sizeLabelEl = document.createElement('label');
+      sizeLabelEl.textContent = 'Combo size';
+      const sizeSelect = document.createElement('select');
+      for (let s = 2; s <= 12; s++) {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s + ' numbers';
+        sizeSelect.appendChild(opt);
+      }
+      sizeSelect.value = comboSize;
+      sizeRow.appendChild(sizeLabelEl);
+      sizeRow.appendChild(sizeSelect);
+      page2.appendChild(sizeRow);
+
+      const comboListEl = document.createElement('div');
+      comboListEl.className = 'combo-list';
+      page2.appendChild(comboListEl);
+
+      function renderCombos() {
+        const x = parseInt(sizeSelect.value, 10);
+        comboSize = x;
+        try { localStorage.setItem(COMBO_SIZE_KEY, String(x)); } catch (e) { /* ignore */ }
+        const combos = computeTopCombos(ranking, x);
+        comboListEl.innerHTML = '';
+        if (!combos) {
+          comboListEl.innerHTML = '<div class="empty-note">Not enough different numbers were logged this session to form a ' + x + '-number combo.</div>';
+          return;
+        }
+        combos.forEach((c, i) => {
+          const row = document.createElement('div');
+          row.className = 'combo-row';
+          row.innerHTML = `<span class="rank-badge">${i + 1}</span><span class="combo-numbers">${c.numbers.join(', ')}</span><span class="combo-score">${c.score} pt${c.score !== 1 ? 's' : ''}</span><span class="combo-chevron">\u25be</span>`;
+
+          const detail = document.createElement('div');
+          detail.className = 'combo-detail';
+          const breakdown = computeComboGameBreakdown(rec, c.numbers);
+          if (breakdown.length === 0) {
+            detail.innerHTML = '<div class="empty-note">No games contributed points to this combo.</div>';
+          } else {
+            breakdown.forEach(bd => {
+              const entry = document.createElement('div');
+              entry.className = 'combo-game-entry';
+              entry.innerHTML = `<b>#${escapeHtml(bd.gameNumber)}</b> &middot; ${escapeHtml(bd.multiplier)} &middot; matched ${escapeHtml(bd.matched.join(', '))} &middot; +${bd.points} pt${bd.points !== 1 ? 's' : ''}`;
+              detail.appendChild(entry);
+            });
+          }
+          row.addEventListener('click', () => detail.classList.toggle('open'));
+          comboListEl.appendChild(row);
+          comboListEl.appendChild(detail);
+        });
+      }
+      sizeSelect.addEventListener('change', renderCombos);
+      renderCombos();
+
+      track.appendChild(page2);
+      carouselWrap.appendChild(track);
+
+      // dots + swipe handling
+      const dotsWrap = document.createElement('div');
+      dotsWrap.className = 'carousel-dots';
+      let currentPage = 0;
+      const dots = [0, 1, 2].map(i => {
+        const dot = document.createElement('span');
+        dot.className = 'dot' + (i === 0 ? ' active' : '');
+        dot.addEventListener('click', () => setPage(i));
+        dotsWrap.appendChild(dot);
+        return dot;
+      });
+
+      function setPage(i) {
+        currentPage = Math.max(0, Math.min(2, i));
+        track.style.transform = 'translateX(-' + (currentPage * 100) + '%)';
+        dots.forEach((d, di) => d.classList.toggle('active', di === currentPage));
+        caption.textContent = pageNames[currentPage];
+      }
+
+      let touchStartX = null;
+      carouselWrap.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+      carouselWrap.addEventListener('touchend', (e) => {
+        if (touchStartX === null) return;
+        const deltaX = e.changedTouches[0].clientX - touchStartX;
+        const threshold = 40;
+        if (deltaX > threshold) setPage(currentPage + 1);       // swipe right -> next page
+        else if (deltaX < -threshold) setPage(currentPage - 1); // swipe left -> previous page
+        touchStartX = null;
+      }, { passive: true });
+
+      carouselWrap.appendChild(dotsWrap);
+      details.appendChild(carouselWrap);
+
+      header.addEventListener('click', () => details.classList.toggle('open'));
+
+      card.appendChild(header);
+      card.appendChild(details);
+      historyList.appendChild(card);
+    });
+  }
+
   // ---- backup: export ----
   function exportBackup() {
     let currentState = null;
     try { currentState = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch (e) { currentState = null; }
     const payload = {
       app: 'keno-tracker',
-      exportVersion: 1,
+      exportVersion: 2,
       exportedAt: new Date().toISOString(),
       currentState: currentState,
       sessionHistory: sessionHistoryData,
@@ -1473,6 +1250,7 @@
       colorInput.value = color;
       gameNumberInput.value = String(sessionGames.length + 1);
       resetMultiplierChips();
+      setBoardViewMode(boardViewMode);
       render();
       renderHistoryList();
       importFileInput.value = '';
@@ -1497,6 +1275,8 @@
   syncSessionInfoInputs();
   colorInput.value = color;
   gameNumberInput.value = String(sessionGames.length + 1);
+  viewToggleAllBtn.classList.toggle('active', boardViewMode === 'session');
+  viewToggleCurrentBtn.classList.toggle('active', boardViewMode === 'current');
   buildBoard();
   render();
 })();
